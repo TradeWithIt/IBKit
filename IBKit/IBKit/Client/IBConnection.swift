@@ -29,7 +29,7 @@ import NIOCore
 import NIOConcurrencyHelpers
 import NIOPosix
 
-class IBConnection {
+final class IBConnection {
     
     enum State: Equatable {
         case initializing
@@ -83,7 +83,8 @@ class IBConnection {
             self.state = .connecting("\(host):\(port)")
             bootstrap.connect(host: host, port: port).flatMap { channel in
                 channel.eventLoop.makeSucceededFuture(channel)
-            }.whenComplete { result in
+            }.whenComplete {[weak self] result in
+                guard let self else { return }
                 switch result {
                 case .success(let channel):
                     self.lock.withLock {
@@ -175,7 +176,8 @@ class IBConnection {
                 return self.group.next().makeFailedFuture(ClientError.notReady)
             }
             self.state = .disconnecting
-            channel.closeFuture.whenComplete { _ in
+            channel.closeFuture.whenComplete {[weak self] _ in
+                guard let self else { return }
                 self.lock.withLock {
                     self.state = .disconnected
                 }
@@ -190,7 +192,8 @@ class IBConnection {
     }
     
     private func stop(error: Error?) {
-        disconnectSocket().whenComplete { result in
+        disconnectSocket().whenComplete {[weak self] result in
+            guard let self else { return }
             switch result {
             case .success:
                 self.didStopCallback?(error)

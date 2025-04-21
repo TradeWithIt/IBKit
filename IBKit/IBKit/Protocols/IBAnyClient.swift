@@ -203,6 +203,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
 	
 	func subscribePositionPNL(_ requestID: Int, accountName: String, contractID: Int, modelCode: [String] = []) throws {
 		let request = IBPositionPNLRequest(requestID: requestID, accountName: accountName, contractID: contractID, modelCode: modelCode)
+        try send(request: request)
 	}
 	
 	func optionChain(_ requestID: Int, underlying contract: IBContract, exchange: IBExchange) throws {
