@@ -100,9 +100,8 @@ public struct IBOrder {
 		}
 		
 		public func encode(to encoder: IBEncoder) throws {
-			let container = encoder.unkeyedContainer()
+			let _ = encoder.unkeyedContainer()
 		}
-		
 	}
 
 	public var orderState: OrderState = OrderState(with: .unknown)

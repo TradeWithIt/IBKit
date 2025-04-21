@@ -25,25 +25,22 @@
 	let client = IBClient.paper(id: 999)
 	client.debugMode = true
 	
-	var subscriptions: [AnyCancellable] = []
-
-	client.eventFeed.sink (
-		receiveCompletion: { completion in
-			PlaygroundPage.current.finishExecution()
-		}, receiveValue: { response in
-			switch response{
-			case let event as IBPriceHistory:
-				event.prices.forEach({print($0)})
-				print(String(repeating: "-", count: 30))
-			case let event as IBPriceBarUpdate:
-				print(event.bar)
-			case let event as (any IBAnyMarketData):
-				print(event)
-			default:
-				print(response)
-			}
-		}
-	).store(in: &subscriptions)
+    Task {
+        for await response in client.eventFeed {
+            switch response {
+            case let event as IBPriceHistory:
+                event.prices.forEach({print($0)})
+                print(String(repeating: "-", count: 30))
+            case let event as IBPriceBarUpdate:
+                print(event.bar)
+            case let event as (any IBAnyMarketData):
+                print(event)
+            default:
+                print(response)
+            }
+        }
+        PlaygroundPage.current.finishExecution()
+    }
 
 /*:
  ### Connect the client.

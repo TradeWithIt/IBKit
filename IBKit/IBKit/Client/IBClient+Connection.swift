@@ -27,290 +27,228 @@ import Foundation
 
 
 extension IBClient: IBConnectionDelegate {
-	
-	func connection(_ connection: IBConnection, didConnect date: String, toServer version: Int) {
-		self.connectionTime = date
-		self.serverVersion = version
-	}
-	
-	func connection(_ connection: IBConnection, didStopCallback error: Error?) {
-		self.subject.send(completion: .finished)
-	}
-	
-	
-	func connection(_ connection: IBConnection, didReceiveData data: Data) {
-		
-		if debugMode {
-			print("\(Date()) -> \(String(data:data, encoding: .utf8)) ")
-		}
-				
-		do {
-			
-			let decoder = IBDecoder(serverVersion)
-			let responseValue = try decoder.decode(Int.self, from: data)
-			let responseType = IBResponseType(rawValue: responseValue)
-			
-			switch responseType {
-					
-			case .ERR_MSG:
-				let object = try decoder.decode(IBServerError.self)
-				subject.send(object)
-					
-			case .NEXT_VALID_ID:
-				let object = try decoder.decode(IBNextRequestID.self)
-				_nextValidID = object.value
-					
-			case .CURRENT_TIME:
-				let object = try decoder.decode(IBServerTime.self)
-				subject.send(object)
-				
-			case .ACCT_VALUE:
-				let object = try decoder.decode(IBAccountUpdate.self)
-				self.subject.send(object)
 
-			case .ACCT_UPDATE_TIME:
-				let object = try decoder.decode(IBAccountUpdateTime.self)
-				self.subject.send(object)
+    func connection(_ connection: IBConnection, didConnect date: String, toServer version: Int) {
+        self.connectionTime = date
+        self.setServerVersion(version)
+    }
 
-			case .PORTFOLIO_VALUE:
-				let object = try decoder.decode(IBPortfolioValue.self)
-				self.subject.send(object)
+    func connection(_ connection: IBConnection, didStopCallback error: Error?) {
+        eventContinuation?.finish()
+    }
 
-			case .ACCT_DOWNLOAD_END:
-				let object = try decoder.decode(IBAccountUpdateEnd.self)
-				self.subject.send(object)
+    func connection(_ connection: IBConnection, didReceiveData data: Data) {
+        if debugMode {
+            print("\(Date()) -> \(String(data: data, encoding: .utf8) ?? "Invalid UTF8")")
+        }
 
-			case .SYMBOL_SAMPLES:
-				let object = try decoder.decode(IBContractSearchResult.self)
-				self.subject.send(object)
-					
-			case .MANAGED_ACCTS:
-				let object = try decoder.decode(IBManagedAccounts.self)
-				self.subject.send(object)
-					
-			case .PNL:
-				let object = try decoder.decode(IBAccountPNL.self)
-				self.subject.send(object)
-					
-			case .ACCOUNT_SUMMARY:
-				let object = try decoder.decode(IBAccountSummary.self)
-				self.subject.send(object)
-					
-			case .ACCOUNT_SUMMARY_END:
-				let object = try decoder.decode(IBAccountSummaryEnd.self)
-				self.subject.send(object)
-					
-			case .ACCOUNT_UPDATE_MULTI:
-				let object = try decoder.decode(IBAccountSummaryMulti.self)
-				self.subject.send(object)
-					
-			case .ACCOUNT_UPDATE_MULTI_END:
-				let object = try decoder.decode(IBAccountSummaryMultiEnd.self)
-				self.subject.send(object)
-					
-			case .POSITION_DATA:
-				let object = try decoder.decode(IBPosition.self)
-				self.subject.send(object)
-					
-			case .POSITION_END:
-				let object = try decoder.decode(IBPositionEnd.self)
-				self.subject.send(object)
-					
-			case .PNL_SINGLE:
-				let object = try decoder.decode(IBPositionPNL.self)
-				self.subject.send(object)
-					
-			case .POSITION_MULTI:
-				let object = try decoder.decode(IBPositionMulti.self)
-				self.subject.send(object)
-					
-			case .POSITION_MULTI_END:
-				let object = try decoder.decode(IBPositionMultiEnd.self)
-				self.subject.send(object)
-										
-			case .OPEN_ORDER:
-				let object = try decoder.decode(IBOpenOrder.self)
-				self.subject.send(object)
-				
-			case .OPEN_ORDER_END:
-				let object = try decoder.decode(IBOpenOrderEnd.self)
-				self.subject.send(object)
-					
-			case .ORDER_STATUS:
-				let object = try decoder.decode(IBOrderStatus.self)
-				self.subject.send(object)
-					
-			case .COMPLETED_ORDER:
-				let object = try decoder.decode(IBOrderCompletion.self)
-				self.subject.send(object)
-					
-			case .COMPLETED_ORDERS_END:
-				let object = try decoder.decode(IBOrderCompetionEnd.self)
-				self.subject.send(object)
-					
-			case .EXECUTION_DATA:
-				let object = try decoder.decode(IBOrderExecution.self)
-				self.subject.send(object)
-					
-			case .EXECUTION_DATA_END:
-				let object = try decoder.decode(IBOrderExecutionEnd.self)
-				self.subject.send(object)
-					
-			case .COMMISSION_REPORT:
-				let object = try decoder.decode(IBCommissionReport.self)
-				self.subject.send(object)
-					
-			case .CONTRACT_DATA:
-				let object = try decoder.decode(IBContractDetails.self)
-				self.subject.send(object)
-					
-			case .CONTRACT_DATA_END:
-				let object = try decoder.decode(IBContractDetailsEnd.self)
-				self.subject.send(object)
-					
-			case .SECURITY_DEFINITION_OPTION_PARAMETER:
-				let object = try decoder.decode(IBOptionChain.self)
-				self.subject.send(object)
-					
-			case .SECURITY_DEFINITION_OPTION_PARAMETER_END:
-				let object = try decoder.decode(IBOptionChainEnd.self)
-				self.subject.send(object)
-					
-			case .FUNDAMENTAL_DATA:
-				let object = try decoder.decode(IBFinancialReport.self)
-				self.subject.send(object)
-										
-			case .HEAD_TIMESTAMP:
-				let object = try decoder.decode(IBHeadTimestamp.self)
-				self.subject.send(object)
-				
-			case .HISTORICAL_DATA:
-				let object = try decoder.decode(IBPriceHistory.self)
-				self.subject.send(object)
-					
-			case .HISTORICAL_DATA_UPDATE:
-				let response = try decoder.decode(IBPriceBarHistoryUpdate.self)
-				let object = IBPriceBarUpdate(requestID: response.requestID, bar: response.bar)
-				self.subject.send(object)
-					
-			case .REAL_TIME_BARS:
-				let object = try decoder.decode(IBPriceBarUpdate.self)
-				self.subject.send(object)
-					
-			case .MARKET_RULE:
-				let object = try decoder.decode(IBMarketRule.self)
-				self.subject.send(object)
-					
-			// TODO: - mask as quote type.
-			case .MARKET_DATA_TYPE:
-				let object = try decoder.decode(IBCurrentMarketDataType.self)
-				self.subject.send(object)
-				
-			case .TICK_REQ_PARAMS:
-				let object = try decoder.decode(IBTickParameters.self)
-				//self.subject.send(object)
+        do {
+            let decoder = IBDecoder(serverVersion)
+            let responseValue = try decoder.decode(Int.self, from: data)
+            guard let responseType = IBResponseType(rawValue: responseValue) else {
+                print("Unknown response: \(responseValue)")
+                return
+            }
 
-			case .NEWS_BULLETINS:
-				let object = try decoder.decode(IBNewsBulletin.self)
-				self.subject.send(object)
-				
-			case .MARKET_DEPTH:
-				let object = try decoder.decode(IBMarketDepth.self)
-				self.subject.send(object)
-				
-			case .MARKET_DEPTH_L2:
-				let object = try decoder.decode(IBMarketDepthLevel2.self)
-				self.subject.send(object)
-				
-			case .TICK_PRICE:
-				let message = try decoder.decode(IBTickPrice.self)
-				message.tick.forEach({self.subject.send($0)})
+            switch responseType {
+                // MARK: - Example Cases
+            case .ERR_MSG:
+                try eventContinuation?.yield(decoder.decode(IBServerError.self))
 
-			case .TICK_SIZE:
-				let message = try decoder.decode(IBTickSize.self)
-				self.subject.send(message.tick)
+            case .NEXT_VALID_ID:
+                let object = try decoder.decode(IBNextRequestID.self)
+                nextValidID = object.value
 
-			case .TICK_GENERIC:
-				let message = try decoder.decode(IBTickGeneric.self)
-				self.subject.send(message.tick)
+            case .CURRENT_TIME:
+                try eventContinuation?.yield(decoder.decode(IBServerTime.self))
 
-			case .TICK_STRING:
-				let message = try decoder.decode(IBTickString.self)
-				self.subject.send(message.tick)
+            case .ACCT_VALUE:
+                try eventContinuation?.yield(decoder.decode(IBAccountUpdate.self))
 
-			case .HISTORICAL_TICKS:
-				let message = try decoder.decode(IBHistoricTick.self)
-				message.ticks.forEach({self.subject.send($0)})
+            case .ACCT_UPDATE_TIME:
+                try eventContinuation?.yield(decoder.decode(IBAccountUpdateTime.self))
 
-			case .HISTORICAL_TICKS_BID_ASK:
-				let message = try decoder.decode(IBHistoricalTickBidAsk.self)
-				message.ticks.forEach({self.subject.send($0)})
+            case .PORTFOLIO_VALUE:
+                try eventContinuation?.yield(decoder.decode(IBPortfolioValue.self))
 
-			case .HISTORICAL_TICKS_LAST:
-				let message = try decoder.decode(IBHistoricalTickLast.self)
-				message.ticks.forEach({self.subject.send($0)})
+            case .ACCT_DOWNLOAD_END:
+                try eventContinuation?.yield(decoder.decode(IBAccountUpdateEnd.self))
 
-			case .TICK_BY_TICK:
-				let message = try decoder.decode(IBTickByTick.self)
-				message.ticks.forEach({self.subject.send($0)})
+            case .SYMBOL_SAMPLES:
+                try eventContinuation?.yield(decoder.decode(IBContractSearchResult.self))
 
-			case .TICK_EFP:
-				let message = try decoder.decode(IBEFPEvent.self)
-				self.subject.send(message)
-					
-			case .TICK_OPTION_COMPUTATION:
-				let message = try decoder.decode(IBOptionComputation.self)
-				self.subject.send(message)
-                
+            case .MANAGED_ACCTS:
+                try eventContinuation?.yield(decoder.decode(IBManagedAccounts.self))
+
+            case .PNL:
+                try eventContinuation?.yield(decoder.decode(IBAccountPNL.self))
+
+            case .ACCOUNT_SUMMARY:
+                try eventContinuation?.yield(decoder.decode(IBAccountSummary.self))
+
+            case .ACCOUNT_SUMMARY_END:
+                try eventContinuation?.yield(decoder.decode(IBAccountSummaryEnd.self))
+
+            case .ACCOUNT_UPDATE_MULTI:
+                try eventContinuation?.yield(decoder.decode(IBAccountSummaryMulti.self))
+
+            case .ACCOUNT_UPDATE_MULTI_END:
+                try eventContinuation?.yield(decoder.decode(IBAccountSummaryMultiEnd.self))
+
+            case .POSITION_DATA:
+                try eventContinuation?.yield(decoder.decode(IBPosition.self))
+
+            case .POSITION_END:
+                try eventContinuation?.yield(decoder.decode(IBPositionEnd.self))
+
+            case .PNL_SINGLE:
+                try eventContinuation?.yield(decoder.decode(IBPositionPNL.self))
+
+            case .POSITION_MULTI:
+                try eventContinuation?.yield(decoder.decode(IBPositionMulti.self))
+
+            case .POSITION_MULTI_END:
+                try eventContinuation?.yield(decoder.decode(IBPositionMultiEnd.self))
+
+            case .OPEN_ORDER:
+                try eventContinuation?.yield(decoder.decode(IBOpenOrder.self))
+
+            case .OPEN_ORDER_END:
+                try eventContinuation?.yield(decoder.decode(IBOpenOrderEnd.self))
+
+            case .ORDER_STATUS:
+                try eventContinuation?.yield(decoder.decode(IBOrderStatus.self))
+
+            case .COMPLETED_ORDER:
+                try eventContinuation?.yield(decoder.decode(IBOrderCompletion.self))
+
+            case .COMPLETED_ORDERS_END:
+                try eventContinuation?.yield(decoder.decode(IBOrderCompetionEnd.self))
+
+            case .EXECUTION_DATA:
+                try eventContinuation?.yield(decoder.decode(IBOrderExecution.self))
+
+            case .EXECUTION_DATA_END:
+                try eventContinuation?.yield(decoder.decode(IBOrderExecutionEnd.self))
+
+            case .COMMISSION_REPORT:
+                try eventContinuation?.yield(decoder.decode(IBCommissionReport.self))
+
+            case .CONTRACT_DATA:
+                try eventContinuation?.yield(decoder.decode(IBContractDetails.self))
+
+            case .CONTRACT_DATA_END:
+                try eventContinuation?.yield(decoder.decode(IBContractDetailsEnd.self))
+
+            case .SECURITY_DEFINITION_OPTION_PARAMETER:
+                try eventContinuation?.yield(decoder.decode(IBOptionChain.self))
+
+            case .SECURITY_DEFINITION_OPTION_PARAMETER_END:
+                try eventContinuation?.yield(decoder.decode(IBOptionChainEnd.self))
+
+            case .FUNDAMENTAL_DATA:
+                try eventContinuation?.yield(decoder.decode(IBFinancialReport.self))
+
+            case .HEAD_TIMESTAMP:
+                try eventContinuation?.yield(decoder.decode(IBHeadTimestamp.self))
+
+            case .HISTORICAL_DATA:
+                try eventContinuation?.yield(decoder.decode(IBPriceHistory.self))
+
+            case .HISTORICAL_DATA_UPDATE:
+                let response = try decoder.decode(IBPriceBarHistoryUpdate.self)
+                eventContinuation?.yield(IBPriceBarUpdate(requestID: response.requestID, bar: response.bar))
+
+            case .REAL_TIME_BARS:
+                try eventContinuation?.yield(decoder.decode(IBPriceBarUpdate.self))
+
+            case .MARKET_RULE:
+                try eventContinuation?.yield(decoder.decode(IBMarketRule.self))
+
+            case .MARKET_DATA_TYPE:
+                try eventContinuation?.yield(decoder.decode(IBCurrentMarketDataType.self))
+
+            case .TICK_REQ_PARAMS:
+                _ = try decoder.decode(IBTickParameters.self) // not yielded yet
+
+            case .NEWS_BULLETINS:
+                try eventContinuation?.yield(decoder.decode(IBNewsBulletin.self))
+
+            case .MARKET_DEPTH:
+                try eventContinuation?.yield(decoder.decode(IBMarketDepth.self))
+
+            case .MARKET_DEPTH_L2:
+                try eventContinuation?.yield(decoder.decode(IBMarketDepthLevel2.self))
+
+            case .TICK_PRICE:
+                let message = try decoder.decode(IBTickPrice.self)
+                message.tick.forEach { eventContinuation?.yield($0) }
+
+            case .TICK_SIZE:
+                let message = try decoder.decode(IBTickSize.self)
+                eventContinuation?.yield(message.tick)
+
+            case .TICK_GENERIC:
+                let message = try decoder.decode(IBTickGeneric.self)
+                eventContinuation?.yield(message.tick)
+
+            case .TICK_STRING:
+                let message = try decoder.decode(IBTickString.self)
+                eventContinuation?.yield(message.tick)
+
+            case .HISTORICAL_TICKS:
+                let message = try decoder.decode(IBHistoricTick.self)
+                message.ticks.forEach { eventContinuation?.yield($0) }
+
+            case .HISTORICAL_TICKS_BID_ASK:
+                let message = try decoder.decode(IBHistoricalTickBidAsk.self)
+                message.ticks.forEach { eventContinuation?.yield($0) }
+
+            case .HISTORICAL_TICKS_LAST:
+                let message = try decoder.decode(IBHistoricalTickLast.self)
+                message.ticks.forEach { eventContinuation?.yield($0) }
+
+            case .TICK_BY_TICK:
+                let message = try decoder.decode(IBTickByTick.self)
+                message.ticks.forEach { eventContinuation?.yield($0) }
+
+            case .TICK_EFP:
+                try eventContinuation?.yield(decoder.decode(IBEFPEvent.self))
+
+            case .TICK_OPTION_COMPUTATION:
+                try eventContinuation?.yield(decoder.decode(IBOptionComputation.self))
+
             case .HISTORICAL_NEWS:
-                let message = try decoder.decode(IBHistoricalNews.self)
-                self.subject.send(message)
-                
-            case .HISTORICAL_NEWS_END:
-                let message = try decoder.decode(IBHistoricalNewsEnd.self)
-                self.subject.send(message)
-                
-            case .SCANNER_PARAMETERS:
-                let message = try decoder.decode(IBScannerParameters.self)
-                self.subject.send(message)
-                
-            
-					
-			default:
-				print("Unknown response \(responseType) received: \(String(data:data, encoding: .utf8))")
-			}
-			
-		} catch {
-			print(error.localizedDescription)
-		}
-		
-	}
-	
-	func dispatchError(_ error: IBServerError){
+                try eventContinuation?.yield(decoder.decode(IBHistoricalNews.self))
 
-		switch error.code{
-		case 1100:
-			print("connectivity error: \(error.code) \(error.message)")
-		case 1101:
-			print("connectivity error: \(error.code) \(error.message)")
-		case 1102:
-			print("connectivity error: \(error.code) \(error.message)")
-		case 1300:
-			print("connectivity error: \(error.code) \(error.message)")
-		case 2100...2169:
-			print("warning message: \(error.code) \(error.message)")
-		case 501...504:
-			print("client error: \(error.code) \(error.message)")
-		case 100...449:
-			print("tws error: \(error.code) \(error.message)")
-			subject.send(error)
-		case 10000...10284:
-			print("tws error: \(error.code) \(error.message)")
-			subject.send(error)
-		default:
-			print("Unknown error received: \(error.code) \(error.message)" )
-		}
-		
-	}
-	
+            case .HISTORICAL_NEWS_END:
+                try eventContinuation?.yield(decoder.decode(IBHistoricalNewsEnd.self))
+
+            case .SCANNER_PARAMETERS:
+                try eventContinuation?.yield(decoder.decode(IBScannerParameters.self))
+
+            default:
+                print("⚠️ Unknown response type: \(responseType)")
+            }
+
+        } catch {
+            print("❌ Decode error: \(error.localizedDescription)")
+        }
+    }
+
+    func dispatchError(_ error: IBServerError) {
+        switch error.code {
+        case 1100, 1101, 1102, 1300:
+            print("⚠️ connectivity error: \(error.code) \(error.message)")
+        case 2100...2169:
+            print("⚠️ warning: \(error.code) \(error.message)")
+        case 501...504:
+            print("❌ client error: \(error.code) \(error.message)")
+        case 100...449, 10000...10284:
+            print("❌ tws error: \(error.code) \(error.message)")
+            eventContinuation?.yield(error)
+        default:
+            print("❌ unknown error: \(error.code) \(error.message)")
+        }
+    }
 }

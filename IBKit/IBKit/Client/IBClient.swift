@@ -25,135 +25,129 @@
 
 
 import Foundation
-import Combine
+import NIOCore
+import NIOConcurrencyHelpers
+import NIOPosix
+
+import Foundation
 import NIOCore
 import NIOConcurrencyHelpers
 import NIOPosix
 
 open class IBClient: IBAnyClient, IBRequestWrapper {
     
-    internal var subject = PassthroughSubject<IBEvent,Never>()
-    lazy public var eventFeed = subject.share().eraseToAnyPublisher()
+    // MARK: - Async Event Feed
     
-    var identifier: Int
+    public var eventContinuation: AsyncStream<IBEvent>.Continuation!
     
-    var connection: IBConnection?
+    public private(set) lazy var eventFeed: AsyncStream<IBEvent> = {
+        AsyncStream { continuation in
+            self.eventContinuation = continuation
+        }
+    }()
     
-    let host: String
+    // MARK: - Properties
     
-    let port: Int
-    
-    private let dispatchGroup = DispatchGroup()
     var _serverVersion: Int?
-    
+    private var serverVersionContinuation: CheckedContinuation<Int, Never>?
+
     public var serverVersion: Int? {
-        get {
-            dispatchGroup.wait()  // Wait until the server version is set
-            return _serverVersion
-        }
-        set {
-            _serverVersion = newValue
-            dispatchGroup.leave()  // Signal that server version is now set
-        }
+        get { _serverVersion }
+        set { _serverVersion = newValue }
     }
 
-	public var debugMode: Bool = false{
-		willSet{
-			self.connection?.debugMode = newValue
-		}
-	}
-    
     public var connectionTime: String?
+    public var debugMode: Bool = false {
+        willSet { connection?.debugMode = newValue }
+    }
     
-    
-    /// Creates new api client.
-    /// - Parameter id: Master API ID, set in IB Gateway or Workstation
-    /// - Parameter address: Address where your IB Gatweay / Worskatation is running
-    
+    public let id: Int
+    public let host: String
+    public let port: Int
 
-    public init(id masterID: Int, address: String, port: Int) {
+    private var connection: IBConnection?
+    var nextValidID: Int = 0
+    
+    public var nextRequestID: Int {
+        let value = nextValidID
+        nextValidID += 1
+        return value
+    }
+
+    // MARK: - Init
+
+    public init(id: Int, address: String, port: Int) {
         guard let host = URL(string: address)?.host else {
-            fatalError("Cant figure out the host to connect")
+            fatalError("Invalid host URL")
         }
-        
+        self.id = id
         self.host = host
         self.port = port
-        self.identifier = masterID
     }
 
-	var _nextValidID: Int = 0
+    // MARK: - Connection
 
-	/// Return next valid request identifier you should use to make request or subscription
+    public func connect() throws {
+        guard connection == nil else {
+            throw IBClientError.connectionError("Already connected")
+        }
 
-	public var nextRequestID: Int {
-		let value = _nextValidID
-		_nextValidID += 1
-		return value
-	}
-	
-	/// Disconnect client from IB Gateway or Workstation
-	///
-	public func connect() throws {
-		guard connection == nil else {
-			throw IBClientError.connectionError("Already connected")
-		}
+        let connection = try IBConnection(host: host, port: port)
+        connection.stateDidChangeCallback = { [weak self] state in
+            self?.stateDidChange(to: state)
+        }
+        connection.delegate = self
+        connection.debugMode = debugMode
+        self.connection = connection
+    }
 
-		dispatchGroup.enter()
+    public func disconnect() {
+        connection?.disconnect()
+        connection = nil
+        eventContinuation?.finish()
+    }
 
-		let connection = try IBConnection(host: host, port: port)
-		connection.stateDidChangeCallback =  stateDidChange(to:)
-		connection.delegate = self
-		connection.debugMode = debugMode
-		self.connection = connection
-	}
-	
-	/// Disconnect client from IB Gateway or Workstation
-	///
-	public func disconnect() {
-		guard let connection else { return }
-		connection.disconnect()
-		self.connection = nil
-		subject.send(completion: .finished)
-	}
-	
-	public func send(request: IBRequest) throws {
+    // MARK: - Send Request
+
+    public func send(request: IBRequest) throws {
         guard let connection, [.connected, .connectedToAPI].contains(connection.state) else {
             throw IBClientError.failedToSend("Client not connected")
         }
-		let encoder = IBEncoder(serverVersion)
-		try encoder.encode(request)
-		let data = encoder.data
-		let dataWithLength = data.count.toBytes(size: 4) + data
-		
-		connection.send(data: dataWithLength)
-	}
-	
-	
-	private func stateDidChange(to state: IBConnection.State) {
-		switch state {
-		case .connectedToAPI:
-			do {
-				try self.startAPI()
-			} catch {
-				print(error)
-			}
-		default:
-			break
-		}
-	}
-	
-	private func startAPI() throws {
-		let version: Int = 2
-		let encoder = IBEncoder()
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.startAPI)
-		try container.encode(version)
-		try container.encode(identifier)
-		try container.encode("")
-		let dataWithLength = encoder.data.count.toBytes(size: 4) + encoder.data
-		connection?.send(data: dataWithLength)
-	}
-	
+
+        let encoder = IBEncoder(_serverVersion)
+        try encoder.encode(request)
+        let data = encoder.data
+        let dataWithLength = data.count.toBytes(size: 4) + data
+        connection.send(data: dataWithLength)
+    }
+
+    // MARK: - State Change
+
+    private func stateDidChange(to state: IBConnection.State) {
+        if state == .connectedToAPI {
+            Task { try? await self.startAPI() }
+        }
+    }
+
+    private func startAPI() async throws {
+        let encoder = IBEncoder()
+        var container = encoder.unkeyedContainer()
+        try container.encode(IBRequestType.startAPI)
+        try container.encode(2) // API version
+        try container.encode(id)
+        try container.encode("") // Reserved
+        let data = encoder.data
+        let dataWithLength = data.count.toBytes(size: 4) + data
+        connection?.send(data: dataWithLength)
+    }
+
+    // MARK: - Server Version Handling
+
+    public func setServerVersion(_ version: Int) {
+        _serverVersion = version
+        serverVersionContinuation?.resume(returning: version)
+        serverVersionContinuation = nil
+    }
 }
 
 public extension IBClient {

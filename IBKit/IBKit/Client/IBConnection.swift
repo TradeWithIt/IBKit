@@ -105,7 +105,7 @@ class IBConnection {
      
     func send(data: Data) {
 		if debugMode {
-			print("\(Date()) <- \(String(data:data, encoding: .utf8)) ")
+            print("\(Date()) <- \(String(data:data, encoding: .utf8) ?? "") ")
 		}
 
         guard let channel else { return }

@@ -82,17 +82,22 @@ let watchlist: [IBContract] = [
 
 
 let client = IBClient.paper(id: 0)
-client.connect()
+try client.connect()
 var cancellables: [AnyCancellable] = []
 
-client.eventFeed
-	.compactMap({$0 as? IBContractDetails})
-	.sink{print($0)}
-	.store(in: &cancellables)
+Task {
+    for await response in client.eventFeed {
+        switch response {
+        case let event as IBContractDetails: print(event)
+        default: break
+        }
+    }
+    PlaygroundPage.current.finishExecution()
+}
 
 for contract in watchlist{
 	let index = client.nextRequestID
-	client.contractDetails(index, contract: contract)
+    try client.contractDetails(index, contract: contract)
 }
 
 client.disconnect()
