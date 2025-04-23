@@ -23,49 +23,41 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
+public struct IBTradingHour: Sendable, Codable {
+    public var open: Date
 
-public struct IBTradingHour: Codable {
-	
-	public var open: Date
-	
-	public var close: Date
-	
-	public enum Status: String, Codable, CustomStringConvertible {
-		case closed 	= "CLOSED"
-		case open 		= "OPEN"
-		case halted 	= "HALTED"
-		
-		public var description: String{
-			return self.rawValue
-		}
-		
-	}
-	
-	public var status: Status
-	
-	init(string: String, zone: String) {
-		
-		let formatter = DateFormatter()
-		formatter.timeZone = TimeZone(deprecatedName: zone)
+    public var close: Date
 
-		if string.contains("-"){
-			let comps = string.components(separatedBy: "-")
-			formatter.dateFormat = "yyyyMMdd:HHmm"
-			status = .open
-			open = formatter.date(from: comps[0]) ?? Date.distantPast
-			close = formatter.date(from: comps[1]) ?? Date.distantPast
-		} else {
-			formatter.dateFormat = "yyyyMMdd"
-			let comps = string.components(separatedBy: ":")
-			status = Status(rawValue: comps[1]) ?? .closed
-			open = formatter.date(from: comps[0]) ?? Date.distantPast
-			close = formatter.date(from: comps[0]) ?? Date.distantPast
-		}
-		
-	}
+    public enum Status: String, Sendable, Codable, CustomStringConvertible {
+        case closed = "CLOSED"
+        case open = "OPEN"
+        case halted = "HALTED"
 
+        public var description: String {
+            return rawValue
+        }
+    }
+
+    public var status: Status
+
+    init(string: String, zone: String) {
+        let formatter = DateFormatter()
+        formatter.timeZone = TimeZone(deprecatedName: zone)
+
+        if string.contains("-") {
+            let comps = string.components(separatedBy: "-")
+            formatter.dateFormat = "yyyyMMdd:HHmm"
+            status = .open
+            open = formatter.date(from: comps[0]) ?? Date.distantPast
+            close = formatter.date(from: comps[1]) ?? Date.distantPast
+        } else {
+            formatter.dateFormat = "yyyyMMdd"
+            let comps = string.components(separatedBy: ":")
+            status = Status(rawValue: comps[1]) ?? .closed
+            open = formatter.date(from: comps[0]) ?? Date.distantPast
+            close = formatter.date(from: comps[0]) ?? Date.distantPast
+        }
+    }
 }

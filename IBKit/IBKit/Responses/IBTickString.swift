@@ -1,5 +1,5 @@
 //
-//  PriceEvents.swift
+//  IBTickString.swift
 //	IBKit
 //
 //	Copyright (c) 2016-2023 Sten Soosaar
@@ -23,48 +23,37 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
-
-
-
 struct IBTickString: Decodable {
-	
-	var tick: any IBAnyMarketData
-	
-	init(from decoder: Decoder) throws {
-		
-		var container = try decoder.unkeyedContainer()
+    var tick: any IBAnyMarketData
 
-		_  = try container.decode(Int.self)
-		let requestID = try container.decode(Int.self)
-		let type = try container.decode(IBTickType.self)
-		
-		switch type {
-			
-		case .LastTimestamp, .LastRegulatoryTime, .DelayedLastTimestamp:
-			let timeInterval = try container.decode(Double.self)
-			tick = IBTickTimestamp(requestID: requestID, type: type, value: timeInterval)
-				
-		case .Dividends:
-			let report = try container.decode(IBDividend.Report.self)
-			tick = IBDividend(requestID: requestID, type: .Dividends, value: report)
-			
-		case .RTTradeVolume, .RTVolumeTimeAndSales:
-			let report = try container.decode(IBRealTimeSales.LastTrade.self)
-			tick = IBRealTimeSales(requestID: requestID, type: type, value: report)
-				
-		case .OptionBidExchange, .OptionAskExchange, .BidExchange, .AskExchange, .LastExchange:
-			let exchange = try container.decode(String.self)
-			tick = IBTickExchange(requestID: requestID, type: type, value: exchange)
-			
-		default:
-			throw IBClientError.decodingError("unknown tick string of type \(type) received")
-		}
-		
-	}
-	
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+
+        _ = try container.decode(Int.self)
+        let requestID = try container.decode(Int.self)
+        let type = try container.decode(IBTickType.self)
+
+        switch type {
+        case .LastTimestamp, .LastRegulatoryTime, .DelayedLastTimestamp:
+            let timeInterval = try container.decode(Double.self)
+            tick = IBTickTimestamp(requestID: requestID, type: type, value: timeInterval)
+
+        case .Dividends:
+            let report = try container.decode(IBDividend.Report.self)
+            tick = IBDividend(requestID: requestID, type: .Dividends, value: report)
+
+        case .RTTradeVolume, .RTVolumeTimeAndSales:
+            let report = try container.decode(IBRealTimeSales.LastTrade.self)
+            tick = IBRealTimeSales(requestID: requestID, type: type, value: report)
+
+        case .OptionBidExchange, .OptionAskExchange, .BidExchange, .AskExchange, .LastExchange:
+            let exchange = try container.decode(String.self)
+            tick = IBTickExchange(requestID: requestID, type: type, value: exchange)
+
+        default:
+            throw IBClientError.decodingError("unknown tick string of type \(type) received")
+        }
+    }
 }
-

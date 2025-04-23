@@ -1,5 +1,5 @@
 //
-//  IBEvent.swift
+//  IBRequest.swift
 //	IBKit
 //
 //	Copyright (c) 2016-2023 Sten Soosaar
@@ -23,35 +23,25 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
-
-public protocol IBRequest: IBEncodable {
-	var type: IBRequestType			{ get }
+public protocol IBRequest: Sendable, IBEncodable {
+    var type: IBRequestType { get }
 }
-
 
 public protocol IBIndexedRequest: IBRequest {
-	var requestID: Int				{ get }
+    var requestID: Int { get }
 }
 
-
-public extension IBIndexedRequest where Self: Hashable{
-	
-	func hash(into hasher: inout Hasher) {
-		hasher.combine(type)
-		hasher.combine(requestID)
-	}
-	
+public extension IBIndexedRequest where Self: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(type)
+        hasher.combine(requestID)
+    }
 }
 
-
-public extension IBIndexedRequest where Self: Equatable{
-	
-	static func == (lhs: Self, rhs: Self) -> Bool {
-		return lhs.type == rhs.type && lhs.requestID == rhs.requestID
-	}
-	
+public extension IBIndexedRequest where Self: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.type == rhs.type && lhs.requestID == rhs.requestID
+    }
 }

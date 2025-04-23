@@ -5,7 +5,6 @@
 //  Created by Sten Soosaar on 14.12.2024.
 //
 
-
 //
 //  IBEvent.swift
 //	IBKit
@@ -31,19 +30,12 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
+public protocol IBResponse: IBDecodable {}
 
-public protocol IBResponse: IBDecodable{}
-
-
-public protocol IBEvent { }
-
+public protocol IBEvent: Sendable {}
 
 public protocol IBIndexedEvent: IBEvent {
-	var requestID: Int				{ get }
+    var requestID: Int { get }
 }
-
-

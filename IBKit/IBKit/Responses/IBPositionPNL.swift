@@ -1,7 +1,7 @@
 //
-//  PositionEvents.swift
+//  IBPositionPNL.swift
 //	IBKit
-//  
+//
 //	Copyright (c) 2016-2023 Sten Soosaar
 //
 //	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,29 +25,23 @@
 
 import Foundation
 
-
-
 public struct IBPositionPNL: IBResponse, IBIndexedEvent {
-	
-	public var requestID: Int
-	public var contractID: Int?
-	public var account: String?
-	public var position: Double
-	public var daily: Double
-	public var unrealized: Double
-	public var realized: Double
-	public var value: Double
+    public var requestID: Int
+    public var contractID: Int?
+    public var account: String?
+    public var position: Double
+    public var daily: Double
+    public var unrealized: Double
+    public var realized: Double
+    public var value: Double
 
-	
-	public init(from decoder: IBDecoder) throws {
-	
-		var container = try decoder.unkeyedContainer()
-		requestID = try container.decode(Int.self)
-		position = try container.decode(Double.self)
-		daily = try container.decode(Double.self)
-		unrealized = try container.decode(Double.self)
-		realized = try container.decode(Double.self)
-		value = try container.decode(Double.self)
-						
-	}
+    public init(from decoder: IBDecoder) throws {
+        var container = try decoder.unkeyedContainer()
+        requestID = try container.decode(Int.self)
+        position = try container.decode(Double.self)
+        daily = try container.decode(Double.self)
+        unrealized = try container.decode(Double.self)
+        realized = try container.decode(Double.self)
+        value = try container.decode(Double.self)
+    }
 }

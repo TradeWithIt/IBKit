@@ -23,13 +23,11 @@
 //	SOFTWARE.
 //
 
-
 import Foundation
 
-
 extension String {
-	var condensedWhitespace: String {
-		let comps = self.components(separatedBy: .whitespacesAndNewlines)
-		return comps.filter { !$0.isEmpty }.joined(separator: " ")
-	}
+    var condensedWhitespace: String {
+        let comps = components(separatedBy: .whitespacesAndNewlines)
+        return comps.filter { !$0.isEmpty }.joined(separator: " ")
+    }
 }

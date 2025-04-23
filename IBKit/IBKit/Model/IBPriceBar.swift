@@ -23,67 +23,66 @@
 //	SOFTWARE.
 //
 
-
-
-
 import Foundation
 
-
-
-
-public enum IBBarSource: String, Encodable {
-	case trades						= "TRADES"
-	case midpoint					= "MIDPOINT"
-	case bid						= "BID"
-	case ask						= "ASK"
-	case bidAsk						= "BID_ASK"
-	case adjustedLast				= "ADJUSTED_LAST"
-	case historicalVolatility		= "HISTORICAL_VOLATILITY"
-	case impliedOptionVolatility	= "OPTION_IMPLIED_VOLATILITY"
-	case rebateRate					= "REBATE_RATE"
-	case feeRate					= "FEE_RATE"
-	case yieldBid					= "YIELD_BID"
-	case yieldAsk					= "YIELD_ASK"
-	case yieldBidAsk				= "YIELD_BID_ASK"
-	case yieldLast					= "YIELD_LAST"
-	case schedule					= "SCHEDULE"
-	case aggTrades					= "AGGTRADES"
+public enum IBBarSource: String, Sendable, Encodable {
+    case trades = "TRADES"
+    case midpoint = "MIDPOINT"
+    case bid = "BID"
+    case ask = "ASK"
+    case bidAsk = "BID_ASK"
+    case adjustedLast = "ADJUSTED_LAST"
+    case historicalVolatility = "HISTORICAL_VOLATILITY"
+    case impliedOptionVolatility = "OPTION_IMPLIED_VOLATILITY"
+    case rebateRate = "REBATE_RATE"
+    case feeRate = "FEE_RATE"
+    case yieldBid = "YIELD_BID"
+    case yieldAsk = "YIELD_ASK"
+    case yieldBidAsk = "YIELD_BID_ASK"
+    case yieldLast = "YIELD_LAST"
+    case schedule = "SCHEDULE"
+    case aggTrades = "AGGTRADES"
 }
 
+public struct IBPriceBar: Sendable, Decodable {
+    public var date: Date
+    public var open: Double
+    public var high: Double
+    public var low: Double
+    public var close: Double
+    public var volume: Double?
+    public var wap: Double?
+    public var count: Int?
 
+    init(
+        date: Date,
+        open: Double,
+        high: Double,
+        low: Double,
+        close: Double,
+        volume: Double?,
+        wap: Double?,
+        count: Int?
+    ) {
+        self.date = date
+        self.open = open
+        self.high = high
+        self.low = low
+        self.close = close
+        self.wap = wap
+        self.volume = volume
+        self.count = count
+    }
 
-public struct IBPriceBar: Decodable {
-	
-	public var date: Date
-	public var open: Double
-	public var high: Double
-	public var low: Double
-	public var close: Double
-	public var volume: Double?
-	public var wap: Double?
-	public var count: Int?
-	
-	internal init(date:Date, open: Double, high: Double, low: Double, close: Double, volume: Double?, wap: Double?, count: Int?){
-		self.date = date
-		self.open = open
-		self.high = high
-		self.low = low
-		self.close = close
-		self.wap = wap
-		self.volume = volume
-		self.count = count
-	}
-
-	public init(from decoder: Decoder) throws {
-		var container = try decoder.unkeyedContainer()
-		date = try container.decode(Date.self)
-		open = try container.decode(Double.self)
-		high = try container.decode(Double.self)
-		low = try container.decode(Double.self)
-		close = try container.decode(Double.self)
-		volume = try container.decodeOptional(Double.self)
-		wap = try container.decodeOptional(Double.self)
-		count = try container.decodeOptional(Int.self)
-	}
-	
+    public init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        date = try container.decode(Date.self)
+        open = try container.decode(Double.self)
+        high = try container.decode(Double.self)
+        low = try container.decode(Double.self)
+        close = try container.decode(Double.self)
+        volume = try container.decodeOptional(Double.self)
+        wap = try container.decodeOptional(Double.self)
+        count = try container.decodeOptional(Int.self)
+    }
 }

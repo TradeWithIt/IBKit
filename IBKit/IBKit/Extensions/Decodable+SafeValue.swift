@@ -1,5 +1,5 @@
 //
-//  Decodable+x.swift
+//  Decodable+SafeValue.swift
 //  IBKit
 //
 //  Created by Szymon Lorenz on 16/2/2025.
@@ -18,7 +18,6 @@
 /// let mask = try container.decode(DecodableValue<Int>.self).orZero
 /// ```
 struct DecodableValue<T: LosslessStringConvertible>: Decodable {
-    
     /// The decoded value or a `.missing` case if decoding failed.
     private var value: T?
 
@@ -49,7 +48,7 @@ struct DecodableValue<T: LosslessStringConvertible>: Decodable {
     var unwrapped: T? {
         return value
     }
-    
+
     /// Retrieves the unwrapped value, or returns `0` if the value is missing.
     /// - Note: Assumes `T` can be initialized with `"0"`, which is safe for numeric types like `Int` and `Double`.
     var orZero: T {

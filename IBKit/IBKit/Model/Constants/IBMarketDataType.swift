@@ -1,7 +1,7 @@
 //
 //  IBMarketDataType.swift
 //	IBKit
-//  
+//
 //	Copyright (c) 2016-2023 Sten Soosaar
 //
 //	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,9 +25,8 @@
 
 import Foundation
 
-
-public enum IBMarketDataType: Int, Codable {
-	case realTime 		= 1
-	case delayed 		= 2
-	case frozen			= 3
+public enum IBMarketDataType: Int, Sendable, Codable {
+    case realTime = 1
+    case delayed = 2
+    case frozen = 3
 }

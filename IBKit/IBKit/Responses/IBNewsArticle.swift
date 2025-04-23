@@ -1,7 +1,7 @@
 //
-//  NewsEvents.swift
+//  IBNewsArticle.swift
 //	IBKit
-//  
+//
 //	Copyright (c) 2016-2023 Sten Soosaar
 //
 //	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,23 +25,17 @@
 
 import Foundation
 
-
-
 public struct IBNewsArticle: IBResponse, IBIndexedEvent {
-	
-	public var requestID: Int
-	
-	public var articleType: Int
-	
-	public var articleText: String
-		
-	public init(from decoder: IBDecoder) throws {
-		var container = try decoder.unkeyedContainer()
-		requestID = try container.decode(Int.self)
-		articleType = try container.decode(Int.self)
-		articleText = try container.decode(String.self)
-	}
+    public var requestID: Int
+
+    public var articleType: Int
+
+    public var articleText: String
+
+    public init(from decoder: IBDecoder) throws {
+        var container = try decoder.unkeyedContainer()
+        requestID = try container.decode(Int.self)
+        articleType = try container.decode(Int.self)
+        articleText = try container.decode(String.self)
+    }
 }
-
-
-

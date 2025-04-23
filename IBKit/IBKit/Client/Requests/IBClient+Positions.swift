@@ -1,7 +1,7 @@
 //
 //  IBClient+Positions.swift
 //	IBKit
-//  
+//
 //	Copyright (c) 2016-2023 Sten Soosaar
 //
 //	Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,76 +25,73 @@
 
 import Foundation
 
-
 /*
-public extension IBClient {
-	
-	func subscribePositionsMulti(_ index: Int, account: String, modelCode: String = "") throws {
-		
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.positionsMulti)
-		try container.encode(version)
-		try container.encode(index)
-		try container.encode(account)
-		try container.encode(modelCode)
-		try send(encoder: encoder)
+ public extension IBClient {
 
-	}
-	
-	func unsubscribePositionsMulti(_ index: Int) throws {
-		
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.cancelPositionsMulti)
-		try container.encode(version)
-		try container.encode(index)
-		try send(encoder: encoder)
+ 	func subscribePositionsMulti(_ index: Int, account: String, modelCode: String = "") throws {
 
-	}
-	
-	
-	
-	func subscribePositions() throws {
-		
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.positions)
-		try container.encode(version)
-		try send(encoder: encoder)
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.positionsMulti)
+ 		try container.encode(version)
+ 		try container.encode(index)
+ 		try container.encode(account)
+ 		try container.encode(modelCode)
+ 		try send(encoder: encoder)
 
-	}
-	
-	func unsubscribePositions() throws {
-		
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.cancelPositions)
-		try container.encode(version)
-		try send(encoder: encoder)
+ 	}
 
-	}
-	
-	func subscribePositionPNL(_ index: Int, account: String, contractID: Int, modelCode: [String]? = nil) throws {
-		
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.singlePNL)
-		try container.encode(index)
-		try container.encode(account)
-		if let code = modelCode{
-			try container.encode(code.joined(separator: ","))
-		} else {
-			try container.encode(modelCode)
-		}
-		try container.encode(contractID)
-		try send(encoder: encoder)
+ 	func unsubscribePositionsMulti(_ index: Int) throws {
 
-	}
-	
-}
-*/
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.cancelPositionsMulti)
+ 		try container.encode(version)
+ 		try container.encode(index)
+ 		try send(encoder: encoder)
+
+ 	}
+
+ 	func subscribePositions() throws {
+
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.positions)
+ 		try container.encode(version)
+ 		try send(encoder: encoder)
+
+ 	}
+
+ 	func unsubscribePositions() throws {
+
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.cancelPositions)
+ 		try container.encode(version)
+ 		try send(encoder: encoder)
+
+ 	}
+
+ 	func subscribePositionPNL(_ index: Int, account: String, contractID: Int, modelCode: [String]? = nil) throws {
+
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.singlePNL)
+ 		try container.encode(index)
+ 		try container.encode(account)
+ 		if let code = modelCode{
+ 			try container.encode(code.joined(separator: ","))
+ 		} else {
+ 			try container.encode(modelCode)
+ 		}
+ 		try container.encode(contractID)
+ 		try send(encoder: encoder)
+
+ 	}
+
+ }
+ */

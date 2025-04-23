@@ -10,7 +10,6 @@
 	import PlaygroundSupport
 	PlaygroundPage.current.needsIndefiniteExecution = true
 	import Foundation
-	import Combine
 	import IBKit
 
 /*:
@@ -26,7 +25,7 @@
 	client.debugMode = true
 	
     Task {
-        for await response in client.eventFeed {
+        for await response in await client.eventFeed {
             switch response {
             case let event as IBPriceHistory:
                 event.prices.forEach({print($0)})
@@ -39,7 +38,9 @@
                 print(response)
             }
         }
-        PlaygroundPage.current.finishExecution()
+        await MainActor.run {
+            PlaygroundPage.current.finishExecution()
+        }
     }
 
 /*:
@@ -47,7 +48,7 @@
  At the moment you should allow the client to establish the connection before sending api calls.
 */
 	do {
-		try client.connect()
+		try await client.connect()
 		usleep(1_000_000)
 	} catch {
 		print(error.localizedDescription)
@@ -61,7 +62,7 @@
 	do {
 		let requestID = client.nextRequestID
 		let contract = IBContract.crypto("BTC", currency: "USD")
-		let interval = try DateInterval.lookback(1, unit: .hour, until: .distantFuture)
+		let interval = DateInterval.lookback(1, unit: .hour, until: .distantFuture)
 		let size = IBBarSize.minute
 		let request = IBPriceHistoryRequest(requestID: requestID, contract: contract, size: size, source: .trades, lookback: interval, extendedTrading: true, includeExpired: false)
 		try client.send(request: request)
@@ -70,7 +71,7 @@
 	}
 
 sleep(15)
-client.disconnect()
+await client.disconnect()
 
 
 //: [Next](@next)

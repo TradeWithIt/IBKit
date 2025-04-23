@@ -1,7 +1,6 @@
 import PlaygroundSupport
 PlaygroundPage.current.needsIndefiniteExecution = true
 import Foundation
-import Combine
 import IBKit
 
 
@@ -83,16 +82,17 @@ let watchlist: [IBContract] = [
 
 let client = IBClient.paper(id: 0)
 try client.connect()
-var cancellables: [AnyCancellable] = []
 
 Task {
-    for await response in client.eventFeed {
+    for await response in await client.eventFeed {
         switch response {
         case let event as IBContractDetails: print(event)
         default: break
         }
     }
-    PlaygroundPage.current.finishExecution()
+    await MainActor.run {
+        PlaygroundPage.current.finishExecution()
+    }
 }
 
 for contract in watchlist{

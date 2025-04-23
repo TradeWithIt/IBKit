@@ -23,116 +23,111 @@
 //	SOFTWARE.
 //
 
-
 import Foundation
 
-public enum IBSecuritiesType: String, Codable {
-	case stock          	= "STK"
-	case option         	= "OPT"
-	case forex          	= "CASH"
-	case index          	= "IND"
-	case future         	= "FUT"
-	case continousFuture	= "CONTFUT"
-	case debt           	= "BOND"
-	case fund           	= "FUND"
-	case etf            	= "ETF"
-	case commodity      	= "CMDTY"
-	case warrant        	= "WAR"
-	case combo          	= "BAG"
-	case futureOption   	= "FOP"
-	case news           	= "NEWS"
-	case cfd            	= "CFD"
-	case structuredProduct	= "IOPT"
-	case crypto				= "CRYPTO"
-	case ssf				= "SSF"
+public enum IBSecuritiesType: String, Sendable, Codable {
+    case stock = "STK"
+    case option = "OPT"
+    case forex = "CASH"
+    case index = "IND"
+    case future = "FUT"
+    case continousFuture = "CONTFUT"
+    case debt = "BOND"
+    case fund = "FUND"
+    case etf = "ETF"
+    case commodity = "CMDTY"
+    case warrant = "WAR"
+    case combo = "BAG"
+    case futureOption = "FOP"
+    case news = "NEWS"
+    case cfd = "CFD"
+    case structuredProduct = "IOPT"
+    case crypto = "CRYPTO"
+    case ssf = "SSF"
 }
-
 
 extension IBSecuritiesType: CustomStringConvertible {
-	
-	public var description: String {
-		switch self{
-			case .stock:          		return "STOCK"
-			case .option:         		return "OPTION"
-			case .forex:          		return "FOREX"
-			case .index:          		return "INDEX"
-			case .future:         		return "FUTURE"
-			case .continousFuture:		return "CONT. FUTURE"
-			case .debt:           		return "BOND"
-			case .fund:           		return "FUND"
-			case .etf:            		return "ETF"
-			case .commodity:      		return "COMMODITY"
-			case .warrant:        		return "WARRANT"
-			case .combo:          		return "BAG"
-			case .futureOption:   		return "FOP"
-			case .news:           		return "NEWS"
-			case .cfd:            		return "CFD"
-			case .structuredProduct:	return "STRUCTURED PRODUCT"
-			case .crypto:				return "CRYPTO"
-			case .ssf:					return "WTF??"
-		}
-	}
-	
+    public var description: String {
+        switch self {
+        case .stock: return "STOCK"
+        case .option: return "OPTION"
+        case .forex: return "FOREX"
+        case .index: return "INDEX"
+        case .future: return "FUTURE"
+        case .continousFuture: return "CONT. FUTURE"
+        case .debt: return "BOND"
+        case .fund: return "FUND"
+        case .etf: return "ETF"
+        case .commodity: return "COMMODITY"
+        case .warrant: return "WARRANT"
+        case .combo: return "BAG"
+        case .futureOption: return "FOP"
+        case .news: return "NEWS"
+        case .cfd: return "CFD"
+        case .structuredProduct: return "STRUCTURED PRODUCT"
+        case .crypto: return "CRYPTO"
+        case .ssf: return "WTF??"
+        }
+    }
 }
 
-
 extension IBSecuritiesType {
-	
-	internal var validBarTypes: [IBBarSource] {
-		switch self {
-			case .stock:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .historicalVolatility, .impliedOptionVolatility, .schedule]
-				
-			case .option:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk]
-				
-			case .forex:
-				return [.midpoint, .bid, .ask, .bidAsk, .schedule]
-			
-			case .index:
-				return [.trades, .historicalVolatility, .impliedOptionVolatility, .schedule]
+    var validBarTypes: [IBBarSource] {
+        switch self {
+        case .stock:
+            return [
+                .trades, .midpoint, .bid, .ask, .bidAsk, .historicalVolatility, .impliedOptionVolatility, .schedule,
+            ]
 
-			case .future, .continousFuture:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .option:
+            return [.trades, .midpoint, .bid, .ask, .bidAsk]
 
-			case .debt:
-				return [.midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .forex:
+            return [.midpoint, .bid, .ask, .bidAsk, .schedule]
 
-			case .fund:
-				return [.midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .index:
+            return [.trades, .historicalVolatility, .impliedOptionVolatility, .schedule]
 
-			case .etf:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .historicalVolatility, .impliedOptionVolatility, .schedule]
+        case .future, .continousFuture:
+            return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
 
-			case .commodity:
-				return [.midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .debt:
+            return [.midpoint, .bid, .ask, .bidAsk, .schedule]
 
-			case .warrant:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .fund:
+            return [.midpoint, .bid, .ask, .bidAsk, .schedule]
 
-			case .combo:
-				return []
+        case .etf:
+            return [
+                .trades, .midpoint, .bid, .ask, .bidAsk, .historicalVolatility, .impliedOptionVolatility, .schedule,
+            ]
 
-			case .futureOption:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .commodity:
+            return [.midpoint, .bid, .ask, .bidAsk, .schedule]
 
-			case .news:
-				return []
+        case .warrant:
+            return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
 
-			case .cfd:
-				return [.midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .combo:
+            return []
 
-			case .structuredProduct:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .futureOption:
+            return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
 
-			case .crypto:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
-				
-			case .ssf:
-				return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+        case .news:
+            return []
 
+        case .cfd:
+            return [.midpoint, .bid, .ask, .bidAsk, .schedule]
 
-		}
-	}
-	
+        case .structuredProduct:
+            return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+
+        case .crypto:
+            return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+
+        case .ssf:
+            return [.trades, .midpoint, .bid, .ask, .bidAsk, .schedule]
+        }
+    }
 }

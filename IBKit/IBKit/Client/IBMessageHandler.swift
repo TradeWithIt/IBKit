@@ -24,21 +24,19 @@
 import Foundation
 import NIOCore
 
-
-
 class IBMessageHandler: ChannelInboundHandler {
-	typealias InboundIn = ByteBuffer
-	typealias InboundOut = ByteBuffer
+    typealias InboundIn = ByteBuffer
+    typealias InboundOut = ByteBuffer
 
-	var messageFrame: (Data) -> Void
-	
-	init(messageFrame: @escaping (Data) -> Void) {
-		self.messageFrame = messageFrame
-	}
-	
-	func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-		let buffer = self.unwrapInboundIn(data)
-		let data = Data(buffer.readableBytesView)
-		messageFrame(data)
-	}
+    var messageFrame: (Data) -> Void
+
+    init(messageFrame: @escaping (Data) -> Void) {
+        self.messageFrame = messageFrame
+    }
+
+    func channelRead(context _: ChannelHandlerContext, data: NIOAny) {
+        let buffer = unwrapInboundIn(data)
+        let data = Data(buffer.readableBytesView)
+        messageFrame(data)
+    }
 }

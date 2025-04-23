@@ -23,14 +23,12 @@
 //	SOFTWARE.
 //
 
-
 import Foundation
-import NIOCore
 import NIOConcurrencyHelpers
+import NIOCore
 import NIOPosix
 
-final class IBConnection {
-    
+final class IBConnection: @unchecked Sendable {
     enum State: Equatable {
         case initializing
         case connecting(String)
@@ -39,75 +37,75 @@ final class IBConnection {
         case disconnecting
         case disconnected
     }
-    
+
     enum ClientError: Error {
         case notReady
         case cantBind
         case timeout
         case connectionResetByPeer
     }
-    
+
     private var channel: Channel?
-    
+
     private let group = MultiThreadedEventLoopGroup(numberOfThreads: System.coreCount)
-    
+
     private let lock = NIOLock()
-    
+
     private(set) var state = State.initializing {
         didSet {
             stateDidChange(to: state)
         }
     }
 
-	var didStopCallback: ((Error?) -> Void)? = nil
-    
-    var stateDidChangeCallback: ((IBConnection.State) -> Void)? = nil
-    
+    var didStopCallback: ((Error?) -> Void)?
+
+    var stateDidChangeCallback: ((IBConnection.State) -> Void)?
+
     var delegate: IBConnectionDelegate?
-	
-	public var debugMode: Bool = false
-    
+
+    public var debugMode: Bool = false
+
     init(host: String, port: Int) throws {
         lock.withLock {
-            assert(.initializing == self.state)
-            
+            assert(self.state == .initializing)
+
             let bootstrap = ClientBootstrap(group: self.group)
                 .channelOption(ChannelOptions.socketOption(.so_reuseaddr), value: 1)
                 .channelInitializer { channel in
                     channel.pipeline.addHandlers([
                         ByteToMessageHandler(IBClientFrameDecoder()),
-                        IBMessageHandler(messageFrame: self.receiveMessage)
+                        IBMessageHandler(messageFrame: self.receiveMessage),
                     ])
                 }
-            
+
             self.state = .connecting("\(host):\(port)")
             bootstrap.connect(host: host, port: port).flatMap { channel in
                 channel.eventLoop.makeSucceededFuture(channel)
-            }.whenComplete {[weak self] result in
+            }.whenComplete { [weak self] result in
                 guard let self else { return }
                 switch result {
-                case .success(let channel):
+                case let .success(channel):
                     self.lock.withLock {
                         self.channel = channel
                         self.state = .connected
                     }
-                case .failure(let failure):
+                case let .failure(failure):
                     self.connectionDidFail(error: failure)
                 }
             }
         }
     }
-    
+
     deinit {
-        assert(.disconnected == self.state)
+        assert(self.state == .disconnected)
         delegate = nil
         channel = nil
     }
-     
+
     func send(data: Data) {
-		if debugMode {
-            print("\(Date()) <- \(String(data:data, encoding: .utf8) ?? "") ")
-		}
+        if debugMode {
+            print("\(Date()) <- \(String(data: data, encoding: .utf8) ?? "") ")
+        }
 
         guard let channel else { return }
         var buffer = channel.allocator.buffer(capacity: data.count)
@@ -116,33 +114,33 @@ final class IBConnection {
             .writeAndFlush(buffer)
             .whenComplete { _ in }
     }
-    
+
     public func receiveMessage(_ data: Data) {
         if state == .connected {
             guard let separator = "\0".data(using: .utf8),
-                let range = data.range(of: separator),
-                let versionString = String(data: data.subdata(in: 0..<range.lowerBound),encoding: .utf8),
-                let serverVersion = Int(versionString),
-                let connectionTime = String(data: data.subdata(in: range.upperBound..<data.count-1), encoding: .utf8)
+                  let range = data.range(of: separator),
+                  let versionString = String(data: data.subdata(in: 0 ..< range.lowerBound), encoding: .utf8),
+                  let serverVersion = Int(versionString),
+                  let connectionTime = String(data: data.subdata(in: range.upperBound ..< data.count - 1), encoding: .utf8)
             else {
                 return
             }
-            self.delegate?.connection(self, didConnect: connectionTime, toServer: serverVersion)
-            self.state = .connectedToAPI
+            delegate?.connection(self, didConnect: connectionTime, toServer: serverVersion)
+            state = .connectedToAPI
         } else if state == .connectedToAPI {
-            self.delegate?.connection(self, didReceiveData: data)
+            delegate?.connection(self, didReceiveData: data)
         }
     }
-    
+
     func disconnect() {
         stop(error: nil)
     }
-    
+
     private func stateDidChange(to state: IBConnection.State) {
         switch state {
         case .initializing:
             print("initializing")
-        case .connecting(let string):
+        case let .connecting(string):
             print("connecting:", string)
         case .connected:
             print("connected")
@@ -156,18 +154,18 @@ final class IBConnection {
         }
         stateDidChangeCallback?(state)
     }
-    
+
     private func connectionDidFail(error: Error) {
-        self.stop(error: error)
+        stop(error: error)
     }
-    
+
     private func connectionDidEnd() {
-        self.stop(error: nil)
+        stop(error: nil)
     }
-    
+
     public func disconnectSocket() -> EventLoopFuture<Void> {
-        self.lock.withLock {
-            if .connected != self.state {
+        lock.withLock {
+            if self.state != .connected {
                 self.state = .disconnected
                 return self.group.next().makeFailedFuture(ClientError.notReady)
             }
@@ -176,7 +174,7 @@ final class IBConnection {
                 return self.group.next().makeFailedFuture(ClientError.notReady)
             }
             self.state = .disconnecting
-            channel.closeFuture.whenComplete {[weak self] _ in
+            channel.closeFuture.whenComplete { [weak self] _ in
                 guard let self else { return }
                 self.lock.withLock {
                     self.state = .disconnected
@@ -186,32 +184,32 @@ final class IBConnection {
             return channel.closeFuture
         }
     }
-    
+
     private func start() {
         send(data: createGreeting())
     }
-    
+
     private func stop(error: Error?) {
-        disconnectSocket().whenComplete {[weak self] result in
+        disconnectSocket().whenComplete { [weak self] result in
             guard let self else { return }
             switch result {
             case .success:
                 self.didStopCallback?(error)
-            case .failure(let failure):
+            case let .failure(failure):
                 self.didStopCallback?(failure)
             }
-            
+
             self.didStopCallback = nil
         }
     }
-    
+
     private func createGreeting() -> Data {
         var greeting = Data()
-        let prefix="API\0"
+        let prefix = "API\0"
         if let contentData = prefix.data(using: .ascii, allowLossyConversion: false) {
             greeting += contentData
         }
-    
+
         let versions = "v\(IBServerVersion.range.lowerBound)..\(IBServerVersion.range.upperBound)"
         greeting += versions.count.toBytes(size: 4)
         if let contentData = versions.data(using: .ascii, allowLossyConversion: false) {

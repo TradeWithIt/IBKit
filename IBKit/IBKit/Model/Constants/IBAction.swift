@@ -23,22 +23,18 @@
 //	SOFTWARE.
 //
 
-
 import Foundation
 
-public enum IBAction: String, Codable {
-	
-	//Opening long position or closing short position
-	case buy 		= "BUY"
-	
-	///Closing long position
-	case sell 		= "SELL"
-	
-	///For institutional account configured with Long/Short account segments or clearing with a separate account
-	case short 		= "SSHORT"
-	
-	///For specially-configured institutional accounts to indicate that long position not yet delivered is being sold
-	case long 		= "SSLONG"
+public enum IBAction: String, Sendable, Codable {
+    // Opening long position or closing short position
+    case buy = "BUY"
 
-	
+    /// Closing long position
+    case sell = "SELL"
+
+    /// For institutional account configured with Long/Short account segments or clearing with a separate account
+    case short = "SSHORT"
+
+    /// For specially-configured institutional accounts to indicate that long position not yet delivered is being sold
+    case long = "SSLONG"
 }

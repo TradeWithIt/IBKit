@@ -1,5 +1,5 @@
 //
-//  IBConnection.swift
+//  IBClientFrameDecoder.swift
 //  IBKit
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -24,53 +24,52 @@
 import NIOCore
 
 class IBClientFrameDecoder: ByteToMessageDecoder & NIOSingleStepByteToMessageDecoder {
-	typealias InboundIn = ByteBuffer
-	typealias InboundOut = ByteBuffer
-	
-	func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
-		if let frame = try self.readFrame(buffer: &buffer) {
-			context.fireChannelRead(wrapInboundOut(frame))
-			return .continue
-		} else {
-			return .needMoreData
-		}
-	}
+    typealias InboundIn = ByteBuffer
+    typealias InboundOut = ByteBuffer
 
-	func decode(buffer: inout NIOCore.ByteBuffer) throws -> NIOCore.ByteBuffer? {
-		return try self.readFrame(buffer: &buffer)
-	}
+    func decode(context: ChannelHandlerContext, buffer: inout ByteBuffer) throws -> DecodingState {
+        if let frame = try readFrame(buffer: &buffer) {
+            context.fireChannelRead(wrapInboundOut(frame))
+            return .continue
+        } else {
+            return .needMoreData
+        }
+    }
 
-	func decodeLast(context: ChannelHandlerContext, buffer: inout ByteBuffer, seenEOF: Bool) throws -> DecodingState {
-		while try self.decode(context: context, buffer: &buffer) == .continue {}
-		if buffer.readableBytes > 0 {
-			context.fireErrorCaught(IBClientError.failedToRead("leftover bytes"))
-		}
-		return .needMoreData
-	}
+    func decode(buffer: inout NIOCore.ByteBuffer) throws -> NIOCore.ByteBuffer? {
+        return try readFrame(buffer: &buffer)
+    }
 
-	func decodeLast(buffer: inout ByteBuffer, seenEOF: Bool) throws -> InboundOut? {
-		let decoded = try self.decode(buffer: &buffer)
-		if buffer.readableBytes > 0 {
-			throw IBClientError.failedToRead("leftover bytes")
-		}
-		return decoded
-	}
+    func decodeLast(context: ChannelHandlerContext, buffer: inout ByteBuffer, seenEOF _: Bool) throws -> DecodingState {
+        while try decode(context: context, buffer: &buffer) == .continue {}
+        if buffer.readableBytes > 0 {
+            context.fireErrorCaught(IBClientError.failedToRead("leftover bytes"))
+        }
+        return .needMoreData
+    }
 
-	private func readFrame(buffer: inout ByteBuffer) throws -> ByteBuffer? {
-		guard buffer.readableBytes >= 4 else {
-			return nil
-		}
+    func decodeLast(buffer: inout ByteBuffer, seenEOF _: Bool) throws -> InboundOut? {
+        let decoded = try decode(buffer: &buffer)
+        if buffer.readableBytes > 0 {
+            throw IBClientError.failedToRead("leftover bytes")
+        }
+        return decoded
+    }
 
-		let lengthPrefix = buffer.getInteger(at: buffer.readerIndex, as: Int32.self)!
-		let frameLength = Int(lengthPrefix.littleEndian)
+    private func readFrame(buffer: inout ByteBuffer) throws -> ByteBuffer? {
+        guard buffer.readableBytes >= 4 else {
+            return nil
+        }
 
-		guard buffer.readableBytes >= 4 + frameLength else {
-			return nil
-		}
+        let lengthPrefix = buffer.getInteger(at: buffer.readerIndex, as: Int32.self)!
+        let frameLength = Int(lengthPrefix.littleEndian)
 
-		buffer.moveReaderIndex(forwardBy: 4)
-		let frame = buffer.readSlice(length: frameLength)
-		return frame
-	}
+        guard buffer.readableBytes >= 4 + frameLength else {
+            return nil
+        }
+
+        buffer.moveReaderIndex(forwardBy: 4)
+        let frame = buffer.readSlice(length: frameLength)
+        return frame
+    }
 }
-

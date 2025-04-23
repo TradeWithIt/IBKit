@@ -23,41 +23,26 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
-
 
 public typealias IBCodable = IBDecodable & IBEncodable
 
-
 public protocol IBDecodable: Decodable {
-    	
     init(from decoder: IBDecoder) throws
-    
 }
 
-
 public extension IBDecodable {
-    
     init(from decoder: IBDecoder) throws {
         try self.init(from: decoder)
     }
-    
 }
 
-
-public protocol IBEncodable: Encodable{
-	    
+public protocol IBEncodable: Encodable {
     func encode(to encoder: IBEncoder) throws
-    
 }
 
-
-public extension IBEncodable{
-    
+public extension IBEncodable {
     func encode(to encoder: IBEncoder) throws {
-        try self.encode(to: encoder)
+        try encode(to: encoder)
     }
-    
 }
