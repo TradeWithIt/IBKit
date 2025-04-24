@@ -24,7 +24,7 @@ public protocol IBAnyClient {
     /// - Parameter request: The request to send.
     /// - Returns: An `AsyncStream<IBEvent>` of incoming events.
     /// - Throws: `IBClientError.failedToSend` if the request could not be dispatched.
-    func stream(request: IBRequest) async throws -> AsyncStream<IBEvent>
+    func stream<Event: IBEvent>(request: IBRequest) async throws -> AsyncStream<Event>
 
     /// Sends an indexed request and returns a stream filtered by its `requestID`.
     /// Internally, ensures the stream is registered before dispatching the request,
@@ -32,7 +32,7 @@ public protocol IBAnyClient {
     /// - Parameter request: The indexed request (conforming to `IBIndexedRequest`) to send.
     /// - Returns: A filtered `AsyncStream<IBIndexedEvent>` scoped to the `requestID`.
     /// - Throws: `IBClientError.failedToSend` if the request could not be dispatched.
-    func stream(request: IBIndexedRequest) async throws -> AsyncStream<IBIndexedEvent>
+    func stream<Event: IBIndexedEvent>(request: IBIndexedRequest) async throws -> AsyncStream<Event>
 }
 
 public protocol IBRequestWrapper {

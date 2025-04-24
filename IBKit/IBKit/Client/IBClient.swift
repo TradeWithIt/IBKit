@@ -132,10 +132,18 @@ open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
     /// - Parameter request: The request to send.
     /// - Returns: An `AsyncStream<IBEvent>` of incoming events.
     /// - Throws: `IBClientError.failedToSend` if the request could not be dispatched.
-    public func stream(request: IBRequest) async throws -> AsyncStream<IBEvent> {
-        let stream = await broadcaster.stream()
-        try send(request: request)
-        return stream
+    public func stream<Event: IBEvent>(request: IBRequest) async throws -> AsyncStream<Event> {
+        AsyncStream { continuation in
+            Task {
+                let stream = await broadcaster.stream()
+                try send(request: request)
+                for await event in stream {
+                    guard let event = event as? Event else { continue }
+                    continuation.yield(event)
+                }
+                continuation.finish()
+            }
+        }
     }
 
     /// Sends an indexed request and returns a stream filtered by its `requestID`.
@@ -144,13 +152,16 @@ open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
     /// - Parameter request: The indexed request (conforming to `IBIndexedRequest`) to send.
     /// - Returns: A filtered `AsyncStream<IBIndexedEvent>` scoped to the `requestID`.
     /// - Throws: `IBClientError.failedToSend` if the request could not be dispatched.
-    public func stream(request: IBIndexedRequest) async throws -> AsyncStream<IBIndexedEvent> {
+    public func stream<Event: IBIndexedEvent>(request: IBIndexedRequest) async throws -> AsyncStream<Event> {
         AsyncStream { continuation in
             Task {
+                let stream = await broadcaster.stream()
                 try send(request: request)
-                let raw = try await stream(request: request)
-                for await event in raw {
-                    guard event.requestID == request.requestID else { continue }
+                for await event in stream {
+                    guard
+                        let event = event as? Event,
+                        event.requestID == request.requestID
+                    else { continue }
                     continuation.yield(event)
                 }
                 continuation.finish()
