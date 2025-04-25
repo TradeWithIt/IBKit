@@ -23,26 +23,22 @@
 //	SOFTWARE.
 //
 
-
 import Foundation
 
-
 extension Int {
-    
     func toBytes(size: Int) -> Data {
-        var result:[UInt8] = []
-        var shift: Int = 0
-        let step: Int = 8
-        for _ in 0..<size {
-            result.append(UInt8((self >> shift) & 0xff))
+        var result: [UInt8] = []
+        var shift = 0
+        let step = 8
+        for _ in 0 ..< size {
+            result.append(UInt8((self >> shift) & 0xFF))
             shift += step
         }
         return Data(result.reversed())
     }
-    
+
     static func fromBytes(data: Data) -> Int {
-        let result = UInt32(bigEndian: data.withUnsafeBytes { $0.load(as: UInt32.self)})
+        let result = UInt32(bigEndian: data.withUnsafeBytes { $0.load(as: UInt32.self) })
         return Int(result)
     }
-    
 }

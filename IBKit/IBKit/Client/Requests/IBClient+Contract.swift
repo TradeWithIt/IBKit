@@ -1,5 +1,5 @@
 //
-//  IBOrder+Contract.swift
+//  IBClient+Contract.swift
 //	IBKit
 //
 //	Copyright (c) 2016-2023 Sten Soosaar
@@ -23,122 +23,112 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
 /*
 
-public extension IBClient {
-	
-	
-	func searchSymbols(_ index: Int, nameOrSymbol text: String) throws {
-		
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.matchingSymbols)
-		try container.encode(index)
-		try container.encode(text)
-		try send(encoder: encoder)
+ public extension IBClient {
 
-	}
-	
-	func contractDetails(_ index: Int, contract: IBContract) throws {
-		
-		guard let serverVersion = serverVersion else {
-			throw IBError.failedToSend("Failed to read server version")
-		}
-		
-		let version: Int = 8
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.contractData)
-		try container.encode(version)
-		try container.encode(index)
-		try container.encode(contract)
-		try container.encodeOptional(contract.isExpired)
-		try container.encodeOptional(contract.secId?.type)
-		try container.encodeOptional(contract.secId?.value)
-		try send(encoder: encoder)
+ 	func searchSymbols(_ index: Int, nameOrSymbol text: String) throws {
 
-	}
-	
-	enum FundamentalDataType: String, Codable {
-		case overview   	= "ReportSnapshot"
-		case summary    	= "ReportsFinSummary"
-		case ratios     	= "ReportRatios"
-		case statements 	= "ReportsFinStatements"
-		case estimates  	= "RESC"
-		case calendar   	= "CalendarReport"
-	}
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.matchingSymbols)
+ 		try container.encode(index)
+ 		try container.encode(text)
+ 		try send(encoder: encoder)
 
-	
-	func subscribeFundamentals(_ index: Int, contract: IBContract, reportType: FundamentalDataType) throws {
-		
-		let version: Int = 2
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.fundamentalData)
-		try container.encode(version)
-		try container.encode(index)
-		try container.encode(contract.contractID)
-		try container.encode(contract.symbol)
-		try container.encode(contract.securitiesType)
-		try container.encode(contract.exchange)
-		try container.encode(contract.primaryExchange)
-		try container.encode(contract.currency)
-		try container.encode(contract.localSymbol)
-		try container.encode(reportType)
-		try send(encoder: encoder)
+ 	}
 
-	}
+ 	func contractDetails(_ index: Int, contract: IBContract) throws {
 
-	
-	func unsubscribeFundamentals(_ index: Int) throws {
-		
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.cancelFundamentalData)
-		try container.encode(version)
-		try container.encode(index)
-		try send(encoder: encoder)
+ 		guard let serverVersion = serverVersion else {
+ 			throw IBError.failedToSend("Failed to read server version")
+ 		}
 
-	}
-	
-	
-	/// Requests security definition option parameters for viewing a contract's option chain.
-	/// - Parameters:
-	/// - index: request index
-	/// - underlying: underlying contract. symbol, type and contractID are required
-	/// - exchange: exhange where options are traded. leaving empty will return all exchanges.
-	
-	
-	func optionChain(_ index: Int, underlying contract: IBContract, exchange: IBExchange? = nil) throws {
-				
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.optionParameters)
-		try container.encode(index)
-		try container.encode(contract.symbol)
-		try container.encodeOptional(exchange)
-		try container.encode(contract.securitiesType)
-		try container.encodeOptional(contract.contractID)
-		try send(encoder: encoder)
+ 		let version: Int = 8
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.contractData)
+ 		try container.encode(version)
+ 		try container.encode(index)
+ 		try container.encode(contract)
+ 		try container.encodeOptional(contract.isExpired)
+ 		try container.encodeOptional(contract.secId?.type)
+ 		try container.encodeOptional(contract.secId?.value)
+ 		try send(encoder: encoder)
 
-	}
-	
+ 	}
 
-	func requestScannerParameters() throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.scannerParameters)
-		try container.encode(version)
-		try send(encoder: encoder)
-	}
+ 	enum FundamentalDataType: String, Codable {
+ 		case overview   	= "ReportSnapshot"
+ 		case summary    	= "ReportsFinSummary"
+ 		case ratios     	= "ReportRatios"
+ 		case statements 	= "ReportsFinStatements"
+ 		case estimates  	= "RESC"
+ 		case calendar   	= "CalendarReport"
+ 	}
 
-	
-	
-}
-*/
+ 	func subscribeFundamentals(_ index: Int, contract: IBContract, reportType: FundamentalDataType) throws {
+
+ 		let version: Int = 2
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.fundamentalData)
+ 		try container.encode(version)
+ 		try container.encode(index)
+ 		try container.encode(contract.contractID)
+ 		try container.encode(contract.symbol)
+ 		try container.encode(contract.securitiesType)
+ 		try container.encode(contract.exchange)
+ 		try container.encode(contract.primaryExchange)
+ 		try container.encode(contract.currency)
+ 		try container.encode(contract.localSymbol)
+ 		try container.encode(reportType)
+ 		try send(encoder: encoder)
+
+ 	}
+
+ 	func unsubscribeFundamentals(_ index: Int) throws {
+
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.cancelFundamentalData)
+ 		try container.encode(version)
+ 		try container.encode(index)
+ 		try send(encoder: encoder)
+
+ 	}
+
+ 	/// Requests security definition option parameters for viewing a contract's option chain.
+ 	/// - Parameters:
+ 	/// - index: request index
+ 	/// - underlying: underlying contract. symbol, type and contractID are required
+ 	/// - exchange: exhange where options are traded. leaving empty will return all exchanges.
+
+ 	func optionChain(_ index: Int, underlying contract: IBContract, exchange: IBExchange? = nil) throws {
+
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.optionParameters)
+ 		try container.encode(index)
+ 		try container.encode(contract.symbol)
+ 		try container.encodeOptional(exchange)
+ 		try container.encode(contract.securitiesType)
+ 		try container.encodeOptional(contract.contractID)
+ 		try send(encoder: encoder)
+
+ 	}
+
+ 	func requestScannerParameters() throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.scannerParameters)
+ 		try container.encode(version)
+ 		try send(encoder: encoder)
+ 	}
+
+ }
+ */

@@ -1,5 +1,5 @@
 //
-//  AccountEvents.swift
+//  IBManagedAccounts.swift
 //	IBKit
 //
 //	Copyright (c) 2016-2023 Sten Soosaar
@@ -23,20 +23,14 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
-
 public struct IBManagedAccounts: IBResponse, IBEvent {
-	
-	public var identifiers: [String]
-	
-	public init(from decoder: IBDecoder) throws {
-		var container = try decoder.unkeyedContainer()
-		_ = try container.decode(Int.self)
-		self.identifiers = try container.decode(String.self).components(separatedBy: ",")
-	}
-	
-}
+    public var identifiers: [String]
 
+    public init(from decoder: IBDecoder) throws {
+        var container = try decoder.unkeyedContainer()
+        _ = try container.decode(Int.self)
+        identifiers = try container.decode(String.self).components(separatedBy: ",")
+    }
+}

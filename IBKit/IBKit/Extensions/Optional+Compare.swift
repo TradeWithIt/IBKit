@@ -23,31 +23,26 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
-
 extension Optional where Wrapped: Comparable {
-	
-	static func < (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
-		guard let leftValue = lhs, let righValue = rhs else {return false}
-		return leftValue < righValue
-	}
-	
-	static func > (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
-		guard let leftValue = lhs, let righValue = rhs else {return false}
-		return leftValue > righValue
-	}
-	
-	static func <= (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
-		guard let leftValue = lhs, let righValue = rhs else {return false}
-		return leftValue <= righValue
-	}
-	
-	static func >= (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
-		guard let leftValue = lhs, let righValue = rhs else {return false}
-		return leftValue >= righValue
-	}
-	
+    static func < (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
+        guard let leftValue = lhs, let righValue = rhs else { return false }
+        return leftValue < righValue
+    }
+
+    static func > (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
+        guard let leftValue = lhs, let righValue = rhs else { return false }
+        return leftValue > righValue
+    }
+
+    static func <= (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
+        guard let leftValue = lhs, let righValue = rhs else { return false }
+        return leftValue <= righValue
+    }
+
+    static func >= (lhs: Wrapped?, rhs: Wrapped?) -> Bool {
+        guard let leftValue = lhs, let righValue = rhs else { return false }
+        return leftValue >= righValue
+    }
 }

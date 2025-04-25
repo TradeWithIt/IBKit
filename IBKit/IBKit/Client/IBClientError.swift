@@ -23,39 +23,28 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
-
-
 
 typealias IBError = IBClientError
 
-
 public enum IBClientError: Error {
-	case invalidValue(_ reason: String)
-	case encodingError(_ reason: String)
-	case decodingError(_ reason: String)
-	case failedToSend(_ reason: String)
-	case failedToRead(_ reason: String)
-	case connectionError(_ reason: String)
+    case invalidValue(_ reason: String)
+    case encodingError(_ reason: String)
+    case decodingError(_ reason: String)
+    case failedToSend(_ reason: String)
+    case failedToRead(_ reason: String)
+    case connectionError(_ reason: String)
 }
-
 
 extension IBClientError: LocalizedError {
-	
-	public var errorDescription: String? {
-		switch self {
-		case .invalidValue(let reason):			return "Invalid value: \(reason)"
-		case .encodingError(let reason):     	return "Encoding error: \(reason)"
-		case .decodingError(let reason):     	return "Decoding error: \(reason)"
-		case .failedToSend(let reason):			return "Failed to send: \(reason)"
-		case .failedToRead(let reason):			return "Failed to read: \(reason)"
-		case .connectionError(let reason):		return "Connection error: \(reason)"
-		}
-	}
-	
+    public var errorDescription: String? {
+        switch self {
+        case let .invalidValue(reason): return "Invalid value: \(reason)"
+        case let .encodingError(reason): return "Encoding error: \(reason)"
+        case let .decodingError(reason): return "Decoding error: \(reason)"
+        case let .failedToSend(reason): return "Failed to send: \(reason)"
+        case let .failedToRead(reason): return "Failed to read: \(reason)"
+        case let .connectionError(reason): return "Connection error: \(reason)"
+        }
+    }
 }
-
-
-

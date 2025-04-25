@@ -1,5 +1,5 @@
 //
-//  IBNewsRequest.swift
+//  IBHistoricalNewsRequest.swift
 //  IBKit
 //
 //  Created by Mike Holman on 07/12/2024.
@@ -8,7 +8,6 @@
 import Foundation
 
 public struct IBHistoricalNewsRequest: IBIndexedRequest, Hashable {
-    
     public var requestID: Int
     public var type: IBRequestType = .historicalNews
     public var contract: IBContract
@@ -17,7 +16,7 @@ public struct IBHistoricalNewsRequest: IBIndexedRequest, Hashable {
     public var endDateTime: String
     public var totalResults: Int
     public var historicalNewsOptions: [String]
-    
+
     public init(
         requestID: Int,
         contract: IBContract,
@@ -33,9 +32,9 @@ public struct IBHistoricalNewsRequest: IBIndexedRequest, Hashable {
         self.startDateTime = startDateTime
         self.endDateTime = endDateTime
         self.totalResults = totalResults
-        self.historicalNewsOptions = []
+        historicalNewsOptions = []
     }
-    
+
     public func encode(to encoder: IBEncoder) throws {
         var container = encoder.unkeyedContainer()
         try container.encode(type)
@@ -45,6 +44,6 @@ public struct IBHistoricalNewsRequest: IBIndexedRequest, Hashable {
         try container.encode(startDateTime)
         try container.encode(endDateTime)
         try container.encode(totalResults)
-		encoder.wrapNil()
+        encoder.wrapNil()
     }
 }

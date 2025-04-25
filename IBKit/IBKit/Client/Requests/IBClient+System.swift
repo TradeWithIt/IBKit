@@ -23,64 +23,59 @@
 //	SOFTWARE.
 //
 
-
-
-
 import Foundation
 
 /*
-extension IBClient {
-	
-	internal func startAPI(clientID: Int) throws {
-		let version: Int = 2
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.startAPI)
-		try container.encode(version)
-		try container.encode(clientID)
-		try container.encode("")
-		try send(encoder: encoder)
-	}
-	
-	
-	public func requestNextRequestID() throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.nextId)
-		try container.encode(version)
-		try container.encode("")
-		try send(encoder: encoder)
-	}
-	
-	public func requestServerTime() throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.serverTime)
-		try container.encode(version)
-		try send(encoder: encoder)
-	}
+ extension IBClient {
 
-	public func requestBulletins(includePast all: Bool = false) throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.newsBulletins)
-		try container.encode(version)
-		try container.encode(all)
-		try send(encoder: encoder)
-	}
-	
-	public func cancelNewsBulletins() throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.cancelNewsBulletins)
-		try container.encode(version)
-		try send(encoder: encoder)
-	}
-	
-}
-*/
+ 	internal func startAPI(clientID: Int) throws {
+ 		let version: Int = 2
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.startAPI)
+ 		try container.encode(version)
+ 		try container.encode(clientID)
+ 		try container.encode("")
+ 		try send(encoder: encoder)
+ 	}
 
+ 	public func requestNextRequestID() throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.nextId)
+ 		try container.encode(version)
+ 		try container.encode("")
+ 		try send(encoder: encoder)
+ 	}
+
+ 	public func requestServerTime() throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.serverTime)
+ 		try container.encode(version)
+ 		try send(encoder: encoder)
+ 	}
+
+ 	public func requestBulletins(includePast all: Bool = false) throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.newsBulletins)
+ 		try container.encode(version)
+ 		try container.encode(all)
+ 		try send(encoder: encoder)
+ 	}
+
+ 	public func cancelNewsBulletins() throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.cancelNewsBulletins)
+ 		try container.encode(version)
+ 		try send(encoder: encoder)
+ 	}
+
+ }
+ */

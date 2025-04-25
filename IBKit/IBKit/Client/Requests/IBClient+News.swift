@@ -23,16 +23,14 @@
 //	SOFTWARE.
 //
 
-
 import Foundation
 
 /*
-public extension IBClient {
-	
-	func subscribeNews(_ reqId: Int, contract: IBContract, snapshot: Bool = false, regulatory: Bool = false) throws {
-		try requestMarketData(reqId: reqId, contract: contract, events: [], snapshot: snapshot, regulatory: regulatory)
-	}
+ public extension IBClient {
 
-	
-}
-*/
+ 	func subscribeNews(_ reqId: Int, contract: IBContract, snapshot: Bool = false, regulatory: Bool = false) throws {
+ 		try requestMarketData(reqId: reqId, contract: contract, events: [], snapshot: snapshot, regulatory: regulatory)
+ 	}
+
+ }
+ */

@@ -23,145 +23,132 @@
 //	SOFTWARE.
 //
 
-
-
 import Foundation
 
 /*
-public extension IBClient {
+ public extension IBClient {
 
-	
-	/// Requests account identifiers
+ 	/// Requests account identifiers
 
-	func managedAccounts() throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.managedAccounts)
-		try container.encode(version)
-		try send(encoder: encoder)
-	}
-	
-	
-	/// Subscribe account values, portfolio and last update time information
-	/// - Parameter accountName: account name
-	/// - Parameter subscribe: true for start and false to end
+ 	func managedAccounts() throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.managedAccounts)
+ 		try container.encode(version)
+ 		try send(encoder: encoder)
+ 	}
 
-	func subscribeAccountUpdates(accountName: String, subscribe:Bool) throws {
-		let version: Int = 2
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.accountData)
-		try container.encode(version)
-		try container.encode(subscribe)
-		try container.encode(accountName)
-		try send(encoder: encoder)
-	}
-	
-	
-	/// Subscribes account summary.
-	/// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
-	/// - Parameter tags: Array of IBAccountKeys to specify what to subscribe. As a default, all keys will be subscribed
-	/// - Parameter accountGroup:
-	/// - Returns: AccountSummary event per specified tag and will be updated once per 3 minutes
-	 
-	func subscribeAccountSummary(_ requestID: Int, tags: [IBAccountKey] = IBAccountKey.allValues, accountGroup group: String = "All") throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.accountSummary)
-		try container.encode(version)
-		try container.encode(requestID)
-		try container.encode(group)
-		let tagValues = tags.map({$0.rawValue}).joined(separator: ",")
-		try container.encode(tagValues)
-		try send(encoder: encoder)
-	}
+ 	/// Subscribe account values, portfolio and last update time information
+ 	/// - Parameter accountName: account name
+ 	/// - Parameter subscribe: true for start and false to end
 
-	
-	/// Unsubscribes account summary
-	/// - Parameter requestID: 	unique request identifier. Best way to obtain one, is by calling client.getNextID().
-	/// - Returns: AccountSummaryEnd event
+ 	func subscribeAccountUpdates(accountName: String, subscribe:Bool) throws {
+ 		let version: Int = 2
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.accountData)
+ 		try container.encode(version)
+ 		try container.encode(subscribe)
+ 		try container.encode(accountName)
+ 		try send(encoder: encoder)
+ 	}
 
-	func unsubscribeAccountSummary(_ requestID: Int) throws {
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.cancelAccountSummary)
-		try container.encode(requestID)
-		try send(encoder: encoder)
-	}
-	
-	
-	/// Subscribes account summary.
-	/// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
-	/// - Parameter tags: Array of IBAccountKeys to specify what to subscribe. As a default, all keys will be subscribed
-	/// - Parameter accountGroup:
-	/// - Returns: AccountSummary event per specified tag and will be updated once per 3 minutes
-	 
-	func subscribeAccountSummaryMulti(_ requestID: Int, accountName: String, ledger:Bool = true, modelCode:String? = nil) throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.accountUpdatesMulti)
-		try container.encode(version)
-		try container.encode(requestID)
-		try container.encode(accountName)
-		try container.encode(modelCode)
-		try container.encode(ledger)
-		try send(encoder: encoder)
-	}
-	
+ 	/// Subscribes account summary.
+ 	/// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
+ 	/// - Parameter tags: Array of IBAccountKeys to specify what to subscribe. As a default, all keys will be subscribed
+ 	/// - Parameter accountGroup:
+ 	/// - Returns: AccountSummary event per specified tag and will be updated once per 3 minutes
 
-	
-	/// Unsubscribes account summary
-	/// - Parameter requestID: 	unique request identifier. Best way to obtain one, is by calling client.getNextID().
-	/// - Returns: AccountSummaryEnd event
+ 	func subscribeAccountSummary(_ requestID: Int, tags: [IBAccountKey] = IBAccountKey.allValues, accountGroup group: String = "All") throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.accountSummary)
+ 		try container.encode(version)
+ 		try container.encode(requestID)
+ 		try container.encode(group)
+ 		let tagValues = tags.map({$0.rawValue}).joined(separator: ",")
+ 		try container.encode(tagValues)
+ 		try send(encoder: encoder)
+ 	}
 
-	func unsubscribeAccountSummaryMulti(_ requestID: Int) throws {
-		let version: Int = 1
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.cancelAccountUpdatesMulti)
-		try container.encode(version)
-		try container.encode(requestID)
-		try send(encoder: encoder)
-	}
-	
-	
-	/// Subscribes account profit and loss reporting
-	/// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
-	/// - Parameter account: account identifier.
-	/// - Parameter modelCode:
-	/// - Returns: AccountPNL event
+ 	/// Unsubscribes account summary
+ 	/// - Parameter requestID: 	unique request identifier. Best way to obtain one, is by calling client.getNextID().
+ 	/// - Returns: AccountSummaryEnd event
 
-	func subscribeAccountPNL(_ requestID: Int, account: String, modelCode: [String]? = nil) throws {
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.PNL)
-		try container.encode(requestID)
-		try container.encode(account)
-		if let code = modelCode {
-			try container.encode(code.joined(separator: ","))
-		} else {
-			try container.encode("")
-		}
-		try send(encoder: encoder)
-	}
-	
+ 	func unsubscribeAccountSummary(_ requestID: Int) throws {
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.cancelAccountSummary)
+ 		try container.encode(requestID)
+ 		try send(encoder: encoder)
+ 	}
 
-	/// Unsubscribes account profit and loss reporting
-	/// - Parameter requestIDunique request identifier. Best way to obtain one, is by calling client.getNextID().
+ 	/// Subscribes account summary.
+ 	/// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
+ 	/// - Parameter tags: Array of IBAccountKeys to specify what to subscribe. As a default, all keys will be subscribed
+ 	/// - Parameter accountGroup:
+ 	/// - Returns: AccountSummary event per specified tag and will be updated once per 3 minutes
 
-	func unsubscribeAccountPNL(_ requestID: Int) throws {
-		let encoder = IBEncoder(serverVersion: serverVersion)
-		var container = encoder.unkeyedContainer()
-		try container.encode(IBRequestType.cancelPNL)
-		try container.encode(requestID)
-		try send(encoder: encoder)
-	}
+ 	func subscribeAccountSummaryMulti(_ requestID: Int, accountName: String, ledger:Bool = true, modelCode:String? = nil) throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.accountUpdatesMulti)
+ 		try container.encode(version)
+ 		try container.encode(requestID)
+ 		try container.encode(accountName)
+ 		try container.encode(modelCode)
+ 		try container.encode(ledger)
+ 		try send(encoder: encoder)
+ 	}
 
-	
-}
+ 	/// Unsubscribes account summary
+ 	/// - Parameter requestID: 	unique request identifier. Best way to obtain one, is by calling client.getNextID().
+ 	/// - Returns: AccountSummaryEnd event
 
+ 	func unsubscribeAccountSummaryMulti(_ requestID: Int) throws {
+ 		let version: Int = 1
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.cancelAccountUpdatesMulti)
+ 		try container.encode(version)
+ 		try container.encode(requestID)
+ 		try send(encoder: encoder)
+ 	}
 
-*/
+ 	/// Subscribes account profit and loss reporting
+ 	/// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
+ 	/// - Parameter account: account identifier.
+ 	/// - Parameter modelCode:
+ 	/// - Returns: AccountPNL event
+
+ 	func subscribeAccountPNL(_ requestID: Int, account: String, modelCode: [String]? = nil) throws {
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.PNL)
+ 		try container.encode(requestID)
+ 		try container.encode(account)
+ 		if let code = modelCode {
+ 			try container.encode(code.joined(separator: ","))
+ 		} else {
+ 			try container.encode("")
+ 		}
+ 		try send(encoder: encoder)
+ 	}
+
+ 	/// Unsubscribes account profit and loss reporting
+ 	/// - Parameter requestIDunique request identifier. Best way to obtain one, is by calling client.getNextID().
+
+ 	func unsubscribeAccountPNL(_ requestID: Int) throws {
+ 		let encoder = IBEncoder(serverVersion: serverVersion)
+ 		var container = encoder.unkeyedContainer()
+ 		try container.encode(IBRequestType.cancelPNL)
+ 		try container.encode(requestID)
+ 		try send(encoder: encoder)
+ 	}
+
+ }
+
+ */

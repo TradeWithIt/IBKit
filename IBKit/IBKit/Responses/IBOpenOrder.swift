@@ -1,5 +1,5 @@
 //
-//  OrderEvents.swift
+//  IBOpenOrder.swift
 //	IBKit
 //
 //	Copyright (c) 2016-2023 Sten Soosaar
@@ -23,44 +23,30 @@
 //	SOFTWARE.
 //
 
-
-
-
 import Foundation
 
-
-
-
 public struct IBOpenOrder: IBResponse, IBIndexedEvent {
-	
-	public var requestID: Int {
-		return order.orderID
-	}
-	
-	public var order: IBOrder
-	
-	public init(from decoder: IBDecoder) throws {
-		
-		guard let serverVersion = decoder.serverVersion else {
-			throw IBClientError.decodingError("Missing server version")
-		}
-	
-		var container = try decoder.unkeyedContainer()
-		let version = serverVersion < IBServerVersion.ORDER_CONTAINER ? try container.decode(Int.self) : serverVersion
-		order = try container.decode(IBOrder.self)
-		
-	}
-	
+    public var requestID: Int {
+        return order.orderID
+    }
+
+    public var order: IBOrder
+
+    public init(from decoder: IBDecoder) throws {
+        guard let serverVersion = decoder.serverVersion else {
+            throw IBClientError.decodingError("Missing server version")
+        }
+
+        var container = try decoder.unkeyedContainer()
+        // version
+        let _ = serverVersion < IBServerVersion.ORDER_CONTAINER ? try container.decode(Int.self) : serverVersion
+        order = try container.decode(IBOrder.self)
+    }
 }
 
-
-
-
-public struct IBOpenOrderEnd: IBResponse, IBEvent{
-	
-	public init(from decoder: IBDecoder) throws {
-		var container = try decoder.unkeyedContainer()
-		_ = try container.decode(Int.self)
-	}
-	
+public struct IBOpenOrderEnd: IBResponse, IBEvent {
+    public init(from decoder: IBDecoder) throws {
+        var container = try decoder.unkeyedContainer()
+        _ = try container.decode(Int.self)
+    }
 }

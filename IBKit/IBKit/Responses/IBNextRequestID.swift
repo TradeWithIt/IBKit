@@ -1,5 +1,5 @@
 //
-//  SystemEvents.swift
+//  IBNextRequestID.swift
 //	IBKit
 //
 //	Copyright (c) 2016-2023 Sten Soosaar
@@ -23,26 +23,14 @@
 //	SOFTWARE.
 //
 
-
-
-
 import Foundation
 
-
-
 public struct IBNextRequestID: IBResponse, IBEvent {
+    public let value: Int
 
-	public let value: Int
-	
-	public init(from decoder: IBDecoder) throws {
-
-		var container = try decoder.unkeyedContainer()
-		_ = try container.decode(Int.self)
-		value = try container.decode(Int.self)
-
-	}
-	
+    public init(from decoder: IBDecoder) throws {
+        var container = try decoder.unkeyedContainer()
+        _ = try container.decode(Int.self)
+        value = try container.decode(Int.self)
+    }
 }
-
-
-
