@@ -16,8 +16,4 @@ public struct IBScannerParameters: IBResponse, IBEvent {
         version = try container.decode(Int.self)
         content = try container.decode(String.self)
     }
-
-    public func xmlDocument() throws -> XMLDocument {
-        return try XMLDocument(xmlString: content)
-    }
 }

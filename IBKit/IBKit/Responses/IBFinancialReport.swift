@@ -18,8 +18,4 @@ public struct IBFinancialReport: IBResponse, IBIndexedEvent {
         requestID = try container.decode(Int.self)
         content = try container.decode(String.self)
     }
-
-    func xmlDocument() throws -> XMLDocument {
-        return try XMLDocument(xmlString: content)
-    }
 }
