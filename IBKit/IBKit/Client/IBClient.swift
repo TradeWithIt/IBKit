@@ -202,34 +202,25 @@ open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
     // MARK: Types
 
     actor EventBroadcaster<T: Sendable> {
-        private var continuations = [UUID: AsyncStream<T>.Continuation]()
+        private var continuations: [AsyncStream<T>.Continuation] = []
 
         func stream() -> AsyncStream<T> {
-            let id = UUID()
-            return AsyncStream { continuation in
-                continuations[id] = continuation
-
-                continuation.onTermination = { @Sendable _ in
-                    Task { [id] in await self.removeContinuation(id) }
-                }
+            AsyncStream { continuation in
+                continuations.append(continuation)
             }
         }
 
         func yield(_ event: T) {
-            for continuation in continuations.values {
+            for continuation in continuations {
                 continuation.yield(event)
             }
         }
 
         func finish() {
-            for continuation in continuations.values {
+            for continuation in continuations {
                 continuation.finish()
             }
             continuations.removeAll()
-        }
-
-        private func removeContinuation(_ id: UUID) {
-            continuations.removeValue(forKey: id)
         }
     }
 }
