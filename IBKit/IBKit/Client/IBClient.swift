@@ -117,7 +117,13 @@ open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
     /// - Parameter request: The `IBRequest` to encode and dispatch.
     /// - Throws: `IBClientError.failedToSend` if the client is not connected or not ready.
     public func send(request: IBRequest) async throws {
-        try await requestLimiter.waitIfNeeded(for: request.pacingType)
+        if request.type == .cancelHistoricalData, let id = (request as? IBIndexedRequest)?.requestID {
+            await requestLimiter.markHistoricalRequestFinished(id: id)
+        }
+        try await requestLimiter.waitIfNeeded(
+            for: request.pacingType,
+            requestID: (request as? IBIndexedRequest)?.requestID
+        )
         try sendNow(request: request)
     }
 

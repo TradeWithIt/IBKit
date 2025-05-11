@@ -40,7 +40,7 @@ actor IBRequestLimiter {
     private var requestStartTime: Date?
     private var isCoolingDown = false
 
-    func waitIfNeeded(for type: RequestType, requestID: Int? = nil) async throws {
+    func waitIfNeeded(for type: RequestType, requestID: Int?) async throws {
         let now = Date()
 
         // General burst pacing
