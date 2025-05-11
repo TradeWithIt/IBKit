@@ -34,6 +34,7 @@ public enum IBClientError: Error {
     case failedToSend(_ reason: String)
     case failedToRead(_ reason: String)
     case connectionError(_ reason: String)
+    case pacingViolation(_ reason: String)
 }
 
 extension IBClientError: LocalizedError {
@@ -45,6 +46,7 @@ extension IBClientError: LocalizedError {
         case let .failedToSend(reason): return "Failed to send: \(reason)"
         case let .failedToRead(reason): return "Failed to read: \(reason)"
         case let .connectionError(reason): return "Connection error: \(reason)"
+        case let .pacingViolation(reason): return "Pacing violation error: \(reason)"
         }
     }
 }

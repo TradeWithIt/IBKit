@@ -31,7 +31,9 @@ import NIOPosix
 open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
     // MARK: - Async Event Feed
 
+    private let requestLimiter = IBRequestLimiter()
     let broadcaster = EventBroadcaster<IBEvent>()
+    
     public var eventFeed: AsyncStream<IBEvent> {
         get async {
             await broadcaster.stream()
@@ -110,11 +112,22 @@ open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
             await broadcaster.yield(event)
         }
     }
-
+    
     /// Sends a raw IB request to the broker.
     /// - Parameter request: The `IBRequest` to encode and dispatch.
     /// - Throws: `IBClientError.failedToSend` if the client is not connected or not ready.
-    public func send(request: IBRequest) throws {
+    public func send(request: IBRequest) async throws {
+        if request.type == .cancelHistoricalData, let id = (request as? IBIndexedRequest)?.requestID {
+            await requestLimiter.markHistoricalRequestFinished(id: id)
+        }
+        try await requestLimiter.waitIfNeeded(
+            for: request.pacingType,
+            requestID: (request as? IBIndexedRequest)?.requestID
+        )
+        try sendNow(request: request)
+    }
+
+    private func sendNow(request: IBRequest) throws {
         guard let connection, [.connected, .connectedToAPI].contains(connection.state) else {
             throw IBClientError.failedToSend("Client not connected")
         }
@@ -136,7 +149,7 @@ open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
         AsyncStream { continuation in
             Task {
                 let stream = await broadcaster.stream()
-                try send(request: request)
+                try await send(request: request)
                 for await event in stream {
                     guard let event = event as? Event else { continue }
                     continuation.yield(event)
@@ -156,7 +169,7 @@ open class IBClient: @unchecked Sendable, IBAnyClient, IBRequestWrapper {
         AsyncStream { continuation in
             Task {
                 let stream = await broadcaster.stream()
-                try send(request: request)
+                try await send(request: request)
                 for await event in stream {
                     guard
                         let event = event as? Event,

@@ -16,7 +16,7 @@ public protocol IBAnyClient {
     /// Sends a raw IB request to the broker.
     /// - Parameter request: The `IBRequest` to encode and dispatch.
     /// - Throws: `IBClientError.failedToSend` if the client is not connected or not ready.
-    func send(request: IBRequest) throws
+    func send(request: IBRequest) async throws
 
     /// Sends a request and returns an unfiltered event stream associated with this session.
     /// This guarantees a stream consumer is registered **before** sending the request,
@@ -36,63 +36,63 @@ public protocol IBAnyClient {
 }
 
 public protocol IBRequestWrapper {
-    func requestNextRequestID() throws
+    func requestNextRequestID() async throws
 
-    func requestServerTime() throws
+    func requestServerTime() async throws
 
-    func requestBulletins(includePast all: Bool) throws
+    func requestBulletins(includePast all: Bool) async throws
 
-    func cancelNewsBulletins() throws
+    func cancelNewsBulletins() async throws
 
-    func setMarketDataType(_ type: IBMarketDataType) throws
+    func setMarketDataType(_ type: IBMarketDataType) async throws
 
-    func requestScannerParameters() throws
+    func requestScannerParameters() async throws
 
     /// Requests account identifiers
 
-    func requestManagedAccounts() throws
+    func requestManagedAccounts() async throws
 
     /// Subscribe account values, portfolio and last update time information
     /// - Parameter accountName: account name
     /// - Parameter subscribe: true for start and false to end
-    func subscribeAccountUpdates(accountName: String, subscribe: Bool) throws
+    func subscribeAccountUpdates(accountName: String, subscribe: Bool) async throws
 
     /// Subscribes account summary.
     /// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
     /// - Parameter tags: Array of IBAccountKeys to specify what to subscribe. As a default, all keys will be subscribed
     /// - Parameter accountGroup:
     /// - Returns: AccountSummary event per specified tag and will be updated once per 3 minutes
-    func subscribeAccountSummary(_ requestID: Int, tags: [IBAccountKey], accountGroup group: String) throws
+    func subscribeAccountSummary(_ requestID: Int, tags: [IBAccountKey], accountGroup group: String) async throws
 
     /// Unsubscribes account summary
     /// - Parameter requestID: 	unique request identifier. Best way to obtain one, is by calling client.getNextID().
     /// - Returns: AccountSummaryEnd event
-    func unsubscribeAccountSummary(_ requestID: Int) throws
+    func unsubscribeAccountSummary(_ requestID: Int) async throws
 
     /// Subscribes account summary.
     /// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
     /// - Parameter tags: Array of IBAccountKeys to specify what to subscribe. As a default, all keys will be subscribed
     /// - Parameter accountGroup:
     /// - Returns: AccountSummary event per specified tag and will be updated once per 3 minutes
-    func subscribeAccountSummaryMulti(_ requestID: Int, accountName: String, ledger: Bool, modelCode: String?) throws
+    func subscribeAccountSummaryMulti(_ requestID: Int, accountName: String, ledger: Bool, modelCode: String?) async throws
 
     /// Unsubscribes account summary
     /// - Parameter requestID: 	unique request identifier. Best way to obtain one, is by calling client.getNextID().
     /// - Returns: AccountSummaryEnd event
-    func unsubscribeAccountSummaryMulti(_ requestID: Int) throws
+    func unsubscribeAccountSummaryMulti(_ requestID: Int) async throws
 
     /// Subscribes account profit and loss reporting
     /// - Parameter requestID: unique request identifier. Best way to obtain one, is by calling client.getNextID().
     /// - Parameter account: account identifier.
     /// - Parameter modelCode:
     /// - Returns: AccountPNL event
-    func subscribeAccountPNL(_ requestID: Int, account: String, modelCode: [String]?) throws
+    func subscribeAccountPNL(_ requestID: Int, account: String, modelCode: [String]?) async throws
 
     /// Unsubscribes account profit and loss reporting
     /// - Parameter requestIDunique request identifier. Best way to obtain one, is by calling client.getNextID().
-    func unsubscribeAccountPNL(_ requestID: Int) throws
+    func unsubscribeAccountPNL(_ requestID: Int) async throws
 
-    func requestMarketRule(_ requestID: Int) throws
+    func requestMarketRule(_ requestID: Int) async throws
 
     /// Requests first datapoint date for specific dataset
     /// - Parameter reqId: request ID
@@ -101,7 +101,7 @@ public protocol IBRequestWrapper {
     /// - Parameter extendedTrading: use only data from regular trading hours
     /// - Returns: FirstDatapoint event
     func firstDatapointDate(_ requestID: Int, contract: IBContract, barSource: IBBarSource, extendedTrading: Bool)
-        throws
+    async throws
 
     /// Requests first datapoint date for specific dataset
     /// - Parameter reqId: request ID
@@ -120,7 +120,7 @@ public protocol IBRequestWrapper {
         lookback: DateInterval,
         extendedTrading: Bool,
         includeExpired: Bool
-    ) throws
+    ) async throws
 
     func subscribeRealTimeBar(
         _ requestID: Int,
@@ -128,7 +128,7 @@ public protocol IBRequestWrapper {
         barSize size: IBBarSize,
         barSource: IBBarSource,
         extendedTrading: Bool
-    ) throws
+    ) async throws
 
     func requestMarketData(
         _ requestID: Int,
@@ -136,7 +136,7 @@ public protocol IBRequestWrapper {
         events: [IBMarketDataRequest.SubscriptionType],
         snapshot: Bool,
         regulatory: Bool
-    ) throws
+    ) async throws
 
     /// subscribes live quote events including bid / ask / last trade and respective sizes
     /// - Parameter reqId:
@@ -144,13 +144,13 @@ public protocol IBRequestWrapper {
     /// - Parameter snapshot:
     /// - Parameter regulatory:
 
-    func subscribeMarketData(_ requestID: Int, contract: IBContract, snapshot: Bool, regulatory: Bool) throws
+    func subscribeMarketData(_ requestID: Int, contract: IBContract, snapshot: Bool, regulatory: Bool) async throws
 
-    func unsubscribeMarketData(_ requestID: Int) throws
+    func unsubscribeMarketData(_ requestID: Int) async throws
 
-    func subscribeMarketDepth(_ requestID: Int, contract: IBContract, rows: Int, smart: Bool) throws
+    func subscribeMarketDepth(_ requestID: Int, contract: IBContract, rows: Int, smart: Bool) async throws
 
-    func unsubscribeMarketDepth(_ requestID: Int) throws
+    func unsubscribeMarketDepth(_ requestID: Int) async throws
 
     func requestTickByTick(
         _ requestID: Int,
@@ -158,9 +158,9 @@ public protocol IBRequestWrapper {
         tickType: IBTickRequest.TickType,
         tickCount: Int,
         ignoreSize: Bool
-    ) throws
+    ) async throws
 
-    func cancelTickByTickData(_ requestID: Int) throws
+    func cancelTickByTickData(_ requestID: Int) async throws
 
     /// High Resolution Historical Data
     /// - Parameter requestId: id of the request
@@ -179,21 +179,21 @@ public protocol IBRequestWrapper {
         whatToShow: IBTickHistoryRequest.TickSource,
         useRth: Bool,
         ignoreSize: Bool
-    ) throws
+    ) async throws
 
-    func subscribePositions() throws
+    func subscribePositions() async throws
 
-    func unsubscribePositions() throws
+    func unsubscribePositions() async throws
 
-    func subscribePositionsMulti(_ requestID: Int, accountName: String, modelCode: String) throws
+    func subscribePositionsMulti(_ requestID: Int, accountName: String, modelCode: String) async throws
 
-    func unsubscribePositionsMulti(_ requestID: Int) throws
+    func unsubscribePositionsMulti(_ requestID: Int) async throws
 
-    func subscribePositionPNL(_ requestID: Int, accountName: String, contractID: Int, modelCode: [String]) throws
+    func subscribePositionPNL(_ requestID: Int, accountName: String, contractID: Int, modelCode: [String]) async throws
 
-    func cancelAllOrders() throws
+    func cancelAllOrders() async throws
 
-    func cancelOrder(_ requestID: Int) throws
+    func cancelOrder(_ requestID: Int) async throws
 
     func requestExecutions(
         _ requestID: Int,
@@ -204,28 +204,28 @@ public protocol IBRequestWrapper {
         securityType type: IBSecuritiesType?,
         market: IBExchange?,
         side: IBAction?
-    ) throws
+    ) async throws
 
-    func requestOpenOrders() throws
+    func requestOpenOrders() async throws
 
-    func requestAllOpenOrders() throws
+    func requestAllOpenOrders() async throws
 
-    func requestAllOpenOrders(autoBind: Bool) throws
+    func requestAllOpenOrders(autoBind: Bool) async throws
 
-    func requestCompletedOrders(apiOnly: Bool) throws
+    func requestCompletedOrders(apiOnly: Bool) async throws
 
-    func placeOrder(_ requestID: Int, order: IBOrder) throws
+    func placeOrder(_ requestID: Int, order: IBOrder) async throws
 
-    func subscribeNews(_ requestID: Int, contract: IBContract, snapshot: Bool, regulatory: Bool) throws
+    func subscribeNews(_ requestID: Int, contract: IBContract, snapshot: Bool, regulatory: Bool) async throws
 
-    func searchSymbols(_ requestID: Int, nameOrSymbol text: String) throws
+    func searchSymbols(_ requestID: Int, nameOrSymbol text: String) async throws
 
-    func contractDetails(_ requestID: Int, contract: IBContract) throws
+    func contractDetails(_ requestID: Int, contract: IBContract) async throws
 
     func subscribeFundamentals(_ requestID: Int, contract: IBContract, reportType: IBFundamantalsRequest.ReportType)
-        throws
+    async throws
 
-    func unsubscribeFundamentals(_ requestID: Int) throws
+    func unsubscribeFundamentals(_ requestID: Int) async throws
 
     /// Requests security definition option parameters for viewing a contract's option chain.
     /// - Parameters:
@@ -233,12 +233,12 @@ public protocol IBRequestWrapper {
     /// - underlying: underlying contract. symbol, type and contractID are required
     /// - exchange: exhange where options are traded. leaving empty will return all exchanges.
 
-    func optionChain(_ requestID: Int, underlying contract: IBContract, exchange: IBExchange) throws
+    func optionChain(_ requestID: Int, underlying contract: IBContract, exchange: IBExchange) async throws
 }
 
 public extension IBRequestWrapper where Self: IBAnyClient {
     func subscribePositionPNL(_ requestID: Int, accountName: String, contractID: Int, modelCode: [String] = [])
-        throws
+    async throws
     {
         let request = IBPositionPNLRequest(
             requestID: requestID,
@@ -246,66 +246,66 @@ public extension IBRequestWrapper where Self: IBAnyClient {
             contractID: contractID,
             modelCode: modelCode
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func optionChain(_ requestID: Int, underlying contract: IBContract, exchange: IBExchange) throws {
+    func optionChain(_ requestID: Int, underlying contract: IBContract, exchange: IBExchange) async throws {
         let request = IBOptionChainRequest(requestID: requestID, underlying: contract, exchange: exchange)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestNextRequestID() throws {
+    func requestNextRequestID() async throws {
         let request = IBNextIDRquest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestServerTime() throws {
+    func requestServerTime() async throws {
         let request = IBServerTimeRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestBulletins(includePast all: Bool = false) throws {
+    func requestBulletins(includePast all: Bool = false) async throws {
         let request = IBBulletinBoardRequest(includePast: all)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func cancelNewsBulletins() throws {
+    func cancelNewsBulletins() async throws {
         let request = IBBulletinBoardCancellationRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func setMarketDataType(_ type: IBMarketDataType) throws {
+    func setMarketDataType(_ type: IBMarketDataType) async throws {
         let request = IBMarketDataTypeRequest(type)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestScannerParameters() throws {
+    func requestScannerParameters() async throws {
         let request = IBScannerParametersRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestManagedAccounts() throws {
+    func requestManagedAccounts() async throws {
         let request = IBManagedAccountsRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func subscribeAccountUpdates(accountName: String, subscribe: Bool) throws {
+    func subscribeAccountUpdates(accountName: String, subscribe: Bool) async throws {
         let request = IBAccountUpdateRequest(accountName: accountName, subscribe: subscribe)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func subscribeAccountSummary(
         _ requestID: Int,
         tags: [IBAccountKey] = IBAccountKey.allValues,
         accountGroup group: String = "All"
-    ) throws {
+    ) async throws {
         let request = IBAccountSummaryRequest(requestID: requestID, tags: tags, group: group)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func unsubscribeAccountSummary(_ requestID: Int) throws {
+    func unsubscribeAccountSummary(_ requestID: Int) async throws {
         let request = IBCancelAccountSummaryRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func subscribeAccountSummaryMulti(
@@ -313,34 +313,34 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         accountName: String,
         ledger: Bool = true,
         modelCode: String? = nil
-    ) throws {
+    ) async throws {
         let request = IBAccountSummaryMultiRequest(
             requestID: requestID,
             accountName: accountName,
             ledger: ledger,
             model: modelCode
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func unsubscribeAccountSummaryMulti(_ requestID: Int) throws {
+    func unsubscribeAccountSummaryMulti(_ requestID: Int) async throws {
         let request = IBAccountSummaryMultiCancellationRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func subscribeAccountPNL(_ requestID: Int, account: String, modelCode: [String]? = nil) throws {
+    func subscribeAccountPNL(_ requestID: Int, account: String, modelCode: [String]? = nil) async throws {
         let request = IBAccountPNLRequest(requestID: requestID, accountName: account, model: modelCode)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func unsubscribeAccountPNL(_ requestID: Int) throws {
+    func unsubscribeAccountPNL(_ requestID: Int) async throws {
         let request = IBAccountPNLCancellation(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestMarketRule(_ requestID: Int) throws {
+    func requestMarketRule(_ requestID: Int) async throws {
         let request = IBMarketRuleRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func firstDatapointDate(
@@ -348,14 +348,14 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         contract: IBContract,
         barSource: IBBarSource = .trades,
         extendedTrading: Bool = false
-    ) throws {
+    ) async throws {
         let request = IBHeadTimestampRequest(
             requestID: requestID,
             contract: contract,
             source: barSource,
             extendedTrading: extendedTrading
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
     func requestPriceHistory(
@@ -366,7 +366,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         lookback: DateInterval,
         extendedTrading: Bool = false,
         includeExpired: Bool = false
-    ) throws {
+    ) async throws {
         let request = IBPriceHistoryRequest(
             requestID: requestID,
             contract: contract,
@@ -377,7 +377,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
             includeExpired: includeExpired
         )
 
-        try send(request: request)
+        try await send(request: request)
     }
 
     func subscribeRealTimeBar(
@@ -386,19 +386,19 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         barSize _: IBBarSize,
         barSource: IBBarSource,
         extendedTrading: Bool = false
-    ) throws {
+    ) async throws {
         let request = IBRealTimeBarRequest(
             requestID: requestID,
             contract: contract,
             source: barSource,
             extendedTrading: extendedTrading
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func unsubscribeRealTimeBar(_ requestID: Int) throws {
+    func unsubscribeRealTimeBar(_ requestID: Int) async throws {
         let request = IBRealTimeBarCancellationRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func requestMarketData(
@@ -407,7 +407,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         events: [IBMarketDataRequest.SubscriptionType] = [],
         snapshot: Bool = false,
         regulatory: Bool = false
-    ) throws {
+    ) async throws {
         let request = IBMarketDataRequest(
             requestID: requestID,
             contract: contract,
@@ -415,7 +415,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
             snapshot: snapshot,
             regulatory: regulatory
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
     func subscribeMarketData(
@@ -423,28 +423,28 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         contract: IBContract,
         snapshot: Bool = false,
         regulatory: Bool = false
-    ) throws {
-        try requestMarketData(requestID, contract: contract, events: [], snapshot: snapshot, regulatory: regulatory)
+    ) async throws {
+        try await requestMarketData(requestID, contract: contract, events: [], snapshot: snapshot, regulatory: regulatory)
     }
 
-    func unsubscribeMarketData(_ requestID: Int) throws {
+    func unsubscribeMarketData(_ requestID: Int) async throws {
         let request = IBMarketDataCancellationRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func cancelHistoricalData(_ requestID: Int) throws {
+    func cancelHistoricalData(_ requestID: Int) async throws {
         let request = IBIBPriceHistoryCancellationRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func subscribeMarketDepth(_ requestID: Int, contract: IBContract, rows: Int, smart: Bool = false) throws {
+    func subscribeMarketDepth(_ requestID: Int, contract: IBContract, rows: Int, smart: Bool = false) async throws {
         let request = IBMarketDepthRequest(requestID: requestID, contract: contract, rows: rows, smart: smart)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func unsubscribeMarketDepth(_ requestID: Int) throws {
+    func unsubscribeMarketDepth(_ requestID: Int) async throws {
         let request = IBMarketDepthCancellation(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func requestTickByTick(
@@ -453,7 +453,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         tickType: IBTickRequest.TickType,
         tickCount: Int,
         ignoreSize: Bool = true
-    ) throws {
+    ) async throws {
         let request = IBTickRequest(
             requestID: requestID,
             contract: contract,
@@ -461,12 +461,12 @@ public extension IBRequestWrapper where Self: IBAnyClient {
             count: tickCount,
             ignoreSize: ignoreSize
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func cancelTickByTickData(_ requestID: Int) throws {
+    func cancelTickByTickData(_ requestID: Int) async throws {
         let request = IBTickCancellationRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func historicalTicks(
@@ -477,7 +477,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         whatToShow: IBTickHistoryRequest.TickSource,
         useRth: Bool,
         ignoreSize: Bool
-    ) throws {
+    ) async throws {
         let request = IBTickHistoryRequest(
             requestID: requestID,
             contract: contract,
@@ -487,22 +487,22 @@ public extension IBRequestWrapper where Self: IBAnyClient {
             extendedHours: useRth,
             ignoreSize: ignoreSize
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func subscribePositions() throws {
+    func subscribePositions() async throws {
         let request = IBPositionRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func unsubscribePositions() throws {
+    func unsubscribePositions() async throws {
         let request = IBPositionCancellationRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func subscribePositionsMulti(_ requestID: Int, accountName: String, modelCode: String = "") throws {
+    func subscribePositionsMulti(_ requestID: Int, accountName: String, modelCode: String = "") async throws {
         let request = IBMultiPositionRequest(requestID: requestID, accountName: accountName, model: modelCode)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func unsubscribePositionsMulti(_ requestID: Int) throws {
@@ -510,7 +510,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
     }
 
     func subscribePositionPNL(_ requestID: Int, accountName: String, contractID: Int, modelCode: [String]? = nil)
-        throws
+    async throws
     {
         let request = IBPositionPNLRequest(
             requestID: requestID,
@@ -518,17 +518,17 @@ public extension IBRequestWrapper where Self: IBAnyClient {
             contractID: contractID,
             modelCode: modelCode
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func cancelAllOrders() throws {
+    func cancelAllOrders() async throws {
         let request = IBGlobalCancelRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func cancelOrder(_ requestID: Int) throws {
+    func cancelOrder(_ requestID: Int) async throws {
         let request = IBCancelOrderRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func requestExecutions(
@@ -540,7 +540,7 @@ public extension IBRequestWrapper where Self: IBAnyClient {
         securityType type: IBSecuritiesType? = nil,
         market: IBExchange? = nil,
         side: IBAction? = nil
-    ) throws {
+    ) async throws {
         let request = IBExcecutionRequest(
             requestID: requestID,
             clientID: clientID,
@@ -551,66 +551,66 @@ public extension IBRequestWrapper where Self: IBAnyClient {
             market: market,
             side: side
         )
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestOpenOrders() throws {
+    func requestOpenOrders() async throws {
         let request = IBOpenOrderRequest()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestAllOpenOrders() throws {
+    func requestAllOpenOrders() async throws {
         let request = IBOpenOrderRequest.all()
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestAllOpenOrders(autoBind: Bool) throws {
+    func requestAllOpenOrders(autoBind: Bool) async throws {
         let request = IBOpenOrderRequest.autoBind(autoBind)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func requestCompletedOrders(apiOnly: Bool) throws {
+    func requestCompletedOrders(apiOnly: Bool) async throws {
         let request = IBCompletedOrdersRequest(apiOnly: apiOnly)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func placeOrder(_ orderId: Int, order: IBOrder) throws {
+    func placeOrder(_ orderId: Int, order: IBOrder) async throws {
         let request = IBPlaceOrderRequest(requestID: orderId, order: order)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func subscribeNews(_ requestID: Int, contract: IBContract, snapshot: Bool = false, regulatory: Bool = false)
-        throws
+    async throws
     {
-        try requestMarketData(requestID, contract: contract, events: [], snapshot: snapshot, regulatory: regulatory)
+        try await requestMarketData(requestID, contract: contract, events: [], snapshot: snapshot, regulatory: regulatory)
     }
 
-    func searchSymbols(_ requestID: Int, nameOrSymbol text: String) throws {
+    func searchSymbols(_ requestID: Int, nameOrSymbol text: String) async throws {
         let request = IBSymbolSearchRequest(requestID: requestID, text: text)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func contractDetails(_ requestID: Int, contract: IBContract) throws {
+    func contractDetails(_ requestID: Int, contract: IBContract) async throws {
         let request = IBContractDetailsRequest(requestID: requestID, contract: contract)
-        try send(request: request)
+        try await send(request: request)
     }
 
     func subscribeFundamentals(
         _ requestID: Int,
         contract: IBContract,
         reportType: IBFundamantalsRequest.ReportType
-    ) throws {
+    ) async throws {
         let request = IBFundamantalsRequest(requestID: requestID, contract: contract, reportType: reportType)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func unsubscribeFundamentals(_ requestID: Int) throws {
+    func unsubscribeFundamentals(_ requestID: Int) async throws {
         let request = IBFundamantalsCancellationRequest(requestID: requestID)
-        try send(request: request)
+        try await send(request: request)
     }
 
-    func optionChain(_ requestID: Int, underlying contract: IBContract, exchange: IBExchange? = nil) throws {
+    func optionChain(_ requestID: Int, underlying contract: IBContract, exchange: IBExchange? = nil) async throws {
         let request = IBOptionChainRequest(requestID: requestID, underlying: contract, exchange: exchange)
-        try send(request: request)
+        try await send(request: request)
     }
 }

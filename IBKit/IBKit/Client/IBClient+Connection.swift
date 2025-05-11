@@ -170,8 +170,8 @@ extension IBClient: IBConnectionDelegate {
                 try yield(decoder.decode(IBCurrentMarketDataType.self))
 
             case .TICK_REQ_PARAMS:
-                _ = try decoder.decode(IBTickParameters.self) // not yielded yet
-
+                try yield(decoder.decode(IBTickParameters.self))
+                
             case .NEWS_BULLETINS:
                 try yield(decoder.decode(IBNewsBulletin.self))
 
