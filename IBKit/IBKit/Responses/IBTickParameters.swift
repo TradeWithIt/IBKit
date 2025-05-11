@@ -16,7 +16,7 @@ public struct IBTickParameters: IBResponse, IBIndexedEvent {
     public init(from decoder: IBDecoder) throws {
         var container = try decoder.unkeyedContainer()
         requestID = try container.decode(Int.self)
-        tickSize = try container.decode(DecodableValue<Double>.self).orZero
+        tickSize = try container.decode(Double.self)
         BBOExchange = try container.decode(String.self)
         snapshotPermissions = try container.decode(Int.self)
     }
